@@ -504,6 +504,22 @@
 
     <!-- Scripts -->
     <script>
+        // Intercept marked.parse to handle undefined or null inputs safely
+        if (window.marked && typeof window.marked.parse === 'function') {
+            const originalMarkedParse = window.marked.parse;
+            window.marked.parse = function(text, options) {
+                if (text === undefined || text === null) {
+                    return '';
+                }
+                try {
+                    return originalMarkedParse.call(window.marked, String(text), options);
+                } catch (e) {
+                    console.error("Marked parser error:", e);
+                    return String(text);
+                }
+            };
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const dropZone = document.getElementById('drop-zone');
             const fileInput = document.getElementById('file-input');
