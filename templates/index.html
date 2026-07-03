@@ -887,22 +887,45 @@
                 }
             });
 
-            // Drag and drop events for multiple files
-            dropZone.addEventListener('click', () => fileInput.click());
+            // Drag and drop events for multiple files with drag counter to prevent flickering
+            let dragCounter = 0;
             
-            dropZone.addEventListener('dragover', (e) => {
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            
+            dropZone.addEventListener('dragenter', (e) => {
                 e.preventDefault();
+                dragCounter++;
                 dropZone.classList.add('dragover');
             });
 
-            ['dragleave', 'dragend'].forEach(type => {
-                dropZone.addEventListener(type, () => {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dragCounter--;
+                if (dragCounter <= 0) {
+                    dragCounter = 0;
                     dropZone.classList.remove('dragover');
-                });
+                }
+            });
+
+            dropZone.addEventListener('dragend', (e) => {
+                e.preventDefault();
+                dragCounter = 0;
+                dropZone.classList.remove('dragover');
             });
 
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
+                dragCounter = 0;
                 dropZone.classList.remove('dragover');
                 if (e.dataTransfer.files.length > 0) {
                     handleMultipleUploads(Array.from(e.dataTransfer.files));
