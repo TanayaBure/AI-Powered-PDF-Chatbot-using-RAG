@@ -100,10 +100,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-brain"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg>
                                 <span>Explain Simply</span>
                             </div>
-                            <div class="tool-item tool-card" id="tool-translate" title="Translate Answer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-languages"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
-                                <span>Translate</span>
-                            </div>
+
                             <div class="tool-item tool-card" id="tool-compare" title="Compare PDFs">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-files"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/></svg>
                                 <span>Compare PDFs</span>
@@ -506,30 +503,7 @@
         </div>
     </div>
 
-    <!-- Tool Translate Modal -->
-    <div class="modal-overlay" id="tool-translate-modal" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Translate Last Answer</h3>
-                <button class="btn-close-modal" id="close-tool-translate-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Select a language to translate the latest AI answer:</p>
-                <div class="form-group">
-                    <label for="tool-translate-select">Language</label>
-                    <select id="tool-translate-select" class="form-control">
-                        <option value="Hindi">Hindi (हिंदी)</option>
-                        <option value="Marathi">Marathi (मराठी)</option>
-                        <option value="English">English (Original)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="btn-cancel-tool-translate">Cancel</button>
-                <button class="btn-primary" id="btn-submit-tool-translate">Translate</button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Scripts -->
     <script>
@@ -1648,18 +1622,6 @@
                                 <div class="eli10-body">${eli10Text ? DOMPurify.sanitize(marked.parse(eli10Text || '')) : ''}</div>
                             </div>
 
-                            <div class="translation-section" style="display: none;">
-                                <div class="translation-header">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="translation-icon">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <line x1="2" y1="12" x2="22" y2="12"/>
-                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                                    </svg>
-                                    <span class="translation-title">Translation</span>
-                                </div>
-                                <div class="translation-body"></div>
-                            </div>
-
                             <div class="message-actions">
                                 <button class="btn-eli10" style="${eli10Text ? 'display: none;' : 'display: flex;'}">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1667,15 +1629,6 @@
                                     </svg>
                                     <span>Explain Simply</span>
                                 </button>
-                                
-                                <div class="translation-controls">
-                                    <select class="select-lang">
-                                        <option value="English">English</option>
-                                        <option value="Hindi">Hindi (हिंदी)</option>
-                                        <option value="Marathi">Marathi (मराठी)</option>
-                                    </select>
-                                    <button class="btn-translate">Translate</button>
-                                </div>
                             </div>
                         `;
                         contentDiv.insertAdjacentHTML('beforeend', actionsHtml);
@@ -1688,85 +1641,10 @@
                         });
                     }
 
-                    const selectLang = contentDiv.querySelector('.select-lang');
-                    const btnTranslate = contentDiv.querySelector('.btn-translate');
-                    
-                    if (btnTranslate && selectLang) {
-                        btnTranslate.addEventListener('click', () => {
-                            const targetLang = selectLang.value;
-                            translateMessage(index, text, targetLang, msgElement, contentDiv, btnTranslate);
-                        });
-                    }
                 }
             }
 
-            function translateMessage(index, text, targetLang, msgElement, contentDiv, button) {
-                const messageTextDiv = contentDiv.querySelector('.message-text');
-                const transSection = contentDiv.querySelector('.translation-section');
-                const transBody = contentDiv.querySelector('.translation-body');
-                const transTitle = contentDiv.querySelector('.translation-title');
-                
-                if (targetLang === 'English') {
-                    if (messageTextDiv) messageTextDiv.style.display = 'block';
-                    if (transSection) transSection.style.display = 'none';
-                    return;
-                }
-                
-                // Check if already cached
-                if (msgElement.translations && msgElement.translations[targetLang]) {
-                    if (messageTextDiv) messageTextDiv.style.display = 'none';
-                    if (transBody && transSection) {
-                        transBody.innerHTML = DOMPurify.sanitize(marked.parse((msgElement.translations && msgElement.translations[targetLang]) || ''));
-                        transTitle.textContent = `Translation (${targetLang})`;
-                        transSection.style.display = 'block';
-                    }
-                    return;
-                }
-                
-                button.disabled = true;
-                button.textContent = 'Translating...';
-                
-                fetch('/translate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: text,
-                        target_language: targetLang,
-                        chat_id: activeChatId,
-                        message_index: index
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) {
-                        alert(`Error: ${data.error}`);
-                    } else {
-                        if (!msgElement.translations) msgElement.translations = {};
-                        msgElement.translations[targetLang] = data.translation;
-                        
-                        if (messageTextDiv) messageTextDiv.style.display = 'none';
-                        if (transBody && transSection) {
-                            transBody.innerHTML = DOMPurify.sanitize(marked.parse(data.translation || ''));
-                            transTitle.textContent = `Translation (${targetLang})`;
-                            transSection.style.display = 'block';
-                        }
-                        
-                        // Force chat history refresh
-                        fetch('/chats')
-                            .then(res => res.json())
-                            .then(chatsData => {
-                                chats = chatsData;
-                            });
-                    }
-                })
-                .catch(err => {
-                    alert(`Failed to translate: ${err.message}`);
-                })
-                .finally(() => {
-                    button.disabled = false;
-                    button.textContent = 'Translate';
-                });
-            }
+
 
             function explainSimplyForMessage(index, text, contentDiv, button) {
                 button.disabled = true;
@@ -2976,11 +2854,7 @@
             const closeToolDocModal = document.getElementById('close-tool-doc-modal');
             const toolDocPrompt = document.getElementById('tool-doc-prompt');
 
-            const toolTranslateModal = document.getElementById('tool-translate-modal');
-            const toolTranslateSelect = document.getElementById('tool-translate-select');
-            const btnSubmitToolTranslate = document.getElementById('btn-submit-tool-translate');
-            const btnCancelToolTranslate = document.getElementById('btn-cancel-tool-translate');
-            const closeToolTranslateModal = document.getElementById('close-tool-translate-modal');
+
 
             let activeToolName = '';
 
@@ -3173,16 +3047,7 @@
                 }
             });
 
-            document.getElementById('tool-translate').addEventListener('click', () => {
-                const latestAiMsg = getLatestAiMessageElement();
-                if (!latestAiMsg) {
-                    appendSystemMessage('⚠️ No AI response available in the active chat to translate.');
-                    return;
-                }
-                window.showChatView();
-                window.setActiveTool('translate');
-                toolTranslateModal.style.display = 'flex';
-            });
+
 
             // Initial view setup
             setTimeout(() => {
@@ -3202,24 +3067,7 @@
                 closeDocModal();
             });
 
-            function closeTranslateModal() {
-                toolTranslateModal.style.display = 'none';
-            }
-            btnCancelToolTranslate.addEventListener('click', closeTranslateModal);
-            closeToolTranslateModal.addEventListener('click', closeTranslateModal);
-            btnSubmitToolTranslate.addEventListener('click', () => {
-                const lang = toolTranslateSelect.value;
-                const latestAiMsg = getLatestAiMessageElement();
-                if (latestAiMsg) {
-                    const langSelect = latestAiMsg.querySelector('.translate-select');
-                    const translateBtn = latestAiMsg.querySelector('.btn-translate');
-                    if (langSelect && translateBtn) {
-                        langSelect.value = lang;
-                        translateBtn.click();
-                    }
-                }
-                closeTranslateModal();
-            });
+
         });
     </script>
 </body>
