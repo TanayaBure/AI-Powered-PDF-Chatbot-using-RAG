@@ -1539,7 +1539,7 @@
                 const msg = document.createElement('div');
                 msg.className = 'message ai-message summary-message';
                 
-                const sanitizedHtml = DOMPurify.sanitize(marked.parse(summaryMarkdown));
+                const sanitizedHtml = DOMPurify.sanitize(marked.parse(summaryMarkdown || ''));
 
                 msg.innerHTML = `
                     <div class="message-content summary-card">
@@ -1590,7 +1590,7 @@
                                     </svg>
                                     <span>Explained Simply (ELI10)</span>
                                 </div>
-                                <div class="eli10-body">${eli10Text ? DOMPurify.sanitize(marked.parse(eli10Text)) : ''}</div>
+                                <div class="eli10-body">${eli10Text ? DOMPurify.sanitize(marked.parse(eli10Text || '')) : ''}</div>
                             </div>
 
                             <div class="translation-section" style="display: none;">
@@ -1661,7 +1661,7 @@
                 if (msgElement.translations && msgElement.translations[targetLang]) {
                     if (messageTextDiv) messageTextDiv.style.display = 'none';
                     if (transBody && transSection) {
-                        transBody.innerHTML = DOMPurify.sanitize(marked.parse(msgElement.translations[targetLang]));
+                        transBody.innerHTML = DOMPurify.sanitize(marked.parse((msgElement.translations && msgElement.translations[targetLang]) || ''));
                         transTitle.textContent = `Translation (${targetLang})`;
                         transSection.style.display = 'block';
                     }
@@ -1691,7 +1691,7 @@
                         
                         if (messageTextDiv) messageTextDiv.style.display = 'none';
                         if (transBody && transSection) {
-                            transBody.innerHTML = DOMPurify.sanitize(marked.parse(data.translation));
+                            transBody.innerHTML = DOMPurify.sanitize(marked.parse(data.translation || ''));
                             transTitle.textContent = `Translation (${targetLang})`;
                             transSection.style.display = 'block';
                         }
@@ -1739,7 +1739,7 @@
                         const actionsDiv = contentDiv.querySelector('.message-actions');
                         
                         if (eliBody && eliSection) {
-                            eliBody.innerHTML = DOMPurify.sanitize(marked.parse(data.explanation));
+                            eliBody.innerHTML = DOMPurify.sanitize(marked.parse(data.explanation || ''));
                             eliSection.style.display = 'block';
                         }
                         if (actionsDiv) {
@@ -1927,7 +1927,7 @@
                         <div class="interview-accordion-body" style="display: none;">
                             <div class="interview-answer-section">
                                 <span class="interview-answer-label">Expected Answer:</span>
-                                <div class="interview-answer-value">${DOMPurify.sanitize(marked.parse(q.answer))}</div>
+                                <div class="interview-answer-value">${DOMPurify.sanitize(marked.parse(q.answer || ''))}</div>
                             </div>
                         </div>
                     </div>
@@ -1993,7 +1993,7 @@
                                         <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                     </div>
                                     <div class="notes-accordion-body" style="display: none;">
-                                        ${DOMPurify.sanitize(marked.parse(notes.short_notes))}
+                                        ${DOMPurify.sanitize(marked.parse(notes.short_notes || ''))}
                                     </div>
                                 </div>
                                 
@@ -2004,7 +2004,7 @@
                                         <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                     </div>
                                     <div class="notes-accordion-body" style="display: none;">
-                                        ${DOMPurify.sanitize(marked.parse(notes.bullet_points))}
+                                        ${DOMPurify.sanitize(marked.parse(notes.bullet_points || ''))}
                                     </div>
                                 </div>
 
@@ -2015,7 +2015,7 @@
                                         <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                     </div>
                                     <div class="notes-accordion-body" style="display: none;">
-                                        ${DOMPurify.sanitize(marked.parse(notes.concepts))}
+                                        ${DOMPurify.sanitize(marked.parse(notes.concepts || ''))}
                                     </div>
                                 </div>
 
@@ -2026,7 +2026,7 @@
                                         <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                     </div>
                                     <div class="notes-accordion-body" style="display: none;">
-                                        ${DOMPurify.sanitize(marked.parse(notes.revision))}
+                                        ${DOMPurify.sanitize(marked.parse(notes.revision || ''))}
                                     </div>
                                 </div>
 
@@ -2037,7 +2037,7 @@
                                         <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                                     </div>
                                     <div class="notes-accordion-body" style="display: none;">
-                                        ${DOMPurify.sanitize(marked.parse(notes.exam_prep))}
+                                        ${DOMPurify.sanitize(marked.parse(notes.exam_prep || ''))}
                                     </div>
                                 </div>
                             </div>
@@ -2098,15 +2098,15 @@
                             <div class="comparison-details">
                                 <div class="comp-detail-section">
                                     <h4>Differences</h4>
-                                    <p>${DOMPurify.sanitize(marked.parse(comparison.differences))}</p>
+                                    <p>${DOMPurify.sanitize(marked.parse(comparison.differences || ''))}</p>
                                 </div>
                                 <div class="comp-detail-section">
                                     <h4>Similarities</h4>
-                                    <p>${DOMPurify.sanitize(marked.parse(comparison.similarities))}</p>
+                                    <p>${DOMPurify.sanitize(marked.parse(comparison.similarities || ''))}</p>
                                 </div>
                                 <div class="comp-detail-section conclusion">
                                     <h4>Final Conclusion</h4>
-                                    <p>${DOMPurify.sanitize(marked.parse(comparison.conclusion))}</p>
+                                    <p>${DOMPurify.sanitize(marked.parse(comparison.conclusion || ''))}</p>
                                 </div>
                             </div>
                         </div>
@@ -2125,14 +2125,14 @@
                             ${pageSearch.answer ? `
                                 <div class="page-search-q-section">
                                     <div class="page-search-q-title">Q: ${escapeHtml(pageSearch.question)}</div>
-                                    <div class="page-search-q-answer">${DOMPurify.sanitize(marked.parse(pageSearch.answer))}</div>
+                                    <div class="page-search-q-answer">${DOMPurify.sanitize(marked.parse(pageSearch.answer || ''))}</div>
                                 </div>
                             ` : ''}
 
                             <div class="page-search-section">
                                 <div class="page-search-section-title">🤖 Generated Summary</div>
                                 <div class="page-search-summary-body">
-                                    ${DOMPurify.sanitize(marked.parse(pageSearch.summary))}
+                                    ${DOMPurify.sanitize(marked.parse(pageSearch.summary || ''))}
                                 </div>
                             </div>
 
@@ -2194,7 +2194,7 @@
                     `;
                 }
                 } else if (sender === 'ai') {
-                    formattedText = DOMPurify.sanitize(marked.parse(text));
+                    formattedText = DOMPurify.sanitize(marked.parse(text || ''));
                 } else {
                     formattedText = `<p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>`;
                 }
@@ -2435,7 +2435,7 @@
                                             <div class="interview-print-item">
                                                 <div class="question">Q. ${escapeHtml(q.question)}</div>
                                                 <div class="meta">Topic: ${escapeHtml(q.topic)} | Difficulty: ${escapeHtml(q.difficulty)}</div>
-                                                <div class="answer"><strong>Expected Answer:</strong> ${DOMPurify.sanitize(marked.parse(q.answer))}</div>
+                                                <div class="answer"><strong>Expected Answer:</strong> ${DOMPurify.sanitize(marked.parse(q.answer || ''))}</div>
                                             </div>
                                         `;
                                     });
@@ -2464,23 +2464,23 @@
                             let printHtml = `
                                 <div class="note-section">
                                     <h2>1. Short Notes</h2>
-                                    <div>${DOMPurify.sanitize(marked.parse(notes.short_notes))}</div>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.short_notes || ''))}</div>
                                 </div>
                                 <div class="note-section">
                                     <h2>2. Bullet Point Notes</h2>
-                                    <div>${DOMPurify.sanitize(marked.parse(notes.bullet_points))}</div>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.bullet_points || ''))}</div>
                                 </div>
                                 <div class="note-section">
                                     <h2>3. Important Concepts</h2>
-                                    <div>${DOMPurify.sanitize(marked.parse(notes.concepts))}</div>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.concepts || ''))}</div>
                                 </div>
                                 <div class="note-section">
                                     <h2>4. Revision Notes</h2>
-                                    <div>${DOMPurify.sanitize(marked.parse(notes.revision))}</div>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.revision || ''))}</div>
                                 </div>
                                 <div class="note-section">
                                     <h2>5. Exam Preparation Notes</h2>
-                                    <div>${DOMPurify.sanitize(marked.parse(notes.exam_prep))}</div>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.exam_prep || ''))}</div>
                                 </div>
                             `;
                             printNotes(text.replace('### Notes Generated: ', ''), printHtml);
@@ -2833,7 +2833,7 @@
                                     } else if (event === 'token') {
                                         statusDiv.style.display = 'none';
                                         aiText += data;
-                                        contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(aiText));
+                                        contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(aiText || ''));
                                     } else if (event === 'sources') {
                                         aiSources = data;
                                     } else if (event === 'done') {
