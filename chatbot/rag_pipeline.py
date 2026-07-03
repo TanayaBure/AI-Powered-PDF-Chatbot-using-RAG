@@ -2,11 +2,13 @@ import os
 import shutil
 from typing import List, Optional, Dict, Any
 from langchain_community.vectorstores import FAISS
-from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from chatbot.embeddings import get_embedding_model
 
-DB_FAISS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "faiss_index")
+if os.environ.get("VERCEL"):
+    DB_FAISS_PATH = "/tmp/faiss_index"
+else:
+    DB_FAISS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "faiss_index")
 
 class RAGPipeline:
     def __init__(self, model_name: str = "llama3.2"):
@@ -14,18 +16,104 @@ class RAGPipeline:
         self.model_name = model_name
         self.vector_store = self._load_vector_store()
         
-        # Initialize OllamaLLM
-        self.llm = OllamaLLM(
-            model=self.model_name,
-            temperature=0.1,  # Lower temperature for more factual responses
-        )
+        # Initialize LLM based on environment
+        self.llm_provider = os.environ.get("LLM_PROVIDER", "ollama").lower()
         
-        # Initialize OllamaLLM in JSON mode for structured outputs
-        self.json_llm = OllamaLLM(
-            model=self.model_name,
-            temperature=0.1,
-            format="json"
-        )
+        # Override to cloud on Vercel if provider is still set to local ollama
+        if os.environ.get("VERCEL") and self.llm_provider == "ollama":
+            if os.environ.get("GROQ_API_KEY"):
+                self.llm_provider = "groq"
+            elif os.environ.get("OPENAI_API_KEY"):
+                self.llm_provider = "openai"
+            elif os.environ.get("HF_TOKEN"):
+                self.llm_provider = "huggingface"
+            else:
+                self.llm_provider = "huggingface"  # Fallback
+                
+        if self.llm_provider == "openai":
+            from langchain_openai import ChatOpenAI
+            api_key = os.environ.get("OPENAI_API_KEY")
+            self.llm = ChatOpenAI(
+                api_key=api_key,
+                model="gpt-4o-mini",
+                temperature=0.1
+            )
+            self.json_llm = ChatOpenAI(
+                api_key=api_key,
+                model="gpt-4o-mini",
+                temperature=0.1,
+                model_kwargs={"response_format": {"type": "json_object"}}
+            )
+        elif self.llm_provider == "groq":
+            from langchain_openai import ChatOpenAI
+            api_key = os.environ.get("GROQ_API_KEY")
+            self.llm = ChatOpenAI(
+                api_key=api_key,
+                base_url="https://api.groq.com/openai/v1",
+                model="llama3-8b-8192",
+                temperature=0.1
+            )
+            self.json_llm = ChatOpenAI(
+                api_key=api_key,
+                base_url="https://api.groq.com/openai/v1",
+                model="llama3-8b-8192",
+                temperature=0.1,
+                model_kwargs={"response_format": {"type": "json_object"}}
+            )
+        elif self.llm_provider == "huggingface":
+            from langchain_community.llms import HuggingFaceEndpoint
+            hf_token = os.environ.get("HF_TOKEN")
+            if not hf_token:
+                raise ValueError("HF_TOKEN environment variable is required for HuggingFace LLM on Vercel.")
+            self.llm = HuggingFaceEndpoint(
+                repo_id="meta-llama/Llama-3.2-3B-Instruct",
+                huggingfacehub_api_token=hf_token,
+                temperature=0.1
+            )
+            self.json_llm = self.llm
+        else: # Default local Ollama
+            from langchain_ollama import OllamaLLM
+            self.llm = OllamaLLM(
+                model=self.model_name,
+                temperature=0.1,
+            )
+            self.json_llm = OllamaLLM(
+                model=self.model_name,
+                temperature=0.1,
+                format="json"
+            )
+
+    def _invoke_llm(self, llm_instance, prompt_or_messages) -> str:
+        """
+        Helper method to invoke the LLM correctly whether it's a Chat Model or a Completion Model.
+        """
+        if hasattr(llm_instance, "invoke") and ("Chat" in llm_instance.__class__.__name__):
+            msgs = prompt_or_messages
+            if isinstance(prompt_or_messages, str):
+                msgs = [("user", prompt_or_messages)]
+            return llm_instance.invoke(msgs).content
+        else:
+            if isinstance(prompt_or_messages, list):
+                prompt_template = ChatPromptTemplate.from_messages(prompt_or_messages)
+                prompt_or_messages = prompt_template.format()
+            return llm_instance.invoke(prompt_or_messages)
+
+    def _stream_llm(self, llm_instance, prompt_or_messages):
+        """
+        Helper method to stream from the LLM correctly whether it's a Chat Model or a Completion Model.
+        """
+        if hasattr(llm_instance, "stream") and ("Chat" in llm_instance.__class__.__name__):
+            msgs = prompt_or_messages
+            if isinstance(prompt_or_messages, str):
+                msgs = [("user", prompt_or_messages)]
+            for chunk in llm_instance.stream(msgs):
+                yield chunk.content
+        else:
+            if isinstance(prompt_or_messages, list):
+                prompt_template = ChatPromptTemplate.from_messages(prompt_or_messages)
+                prompt_or_messages = prompt_template.format()
+            for chunk in llm_instance.stream(prompt_or_messages):
+                yield chunk
         
     def _load_vector_store(self) -> Optional[FAISS]:
         """
@@ -86,7 +174,7 @@ class RAGPipeline:
             "Standalone Question:"
         )
         try:
-            standalone = self.llm.invoke(prompt).strip()
+            standalone = self._invoke_llm(self.llm, prompt).strip()
             if standalone.startswith("Standalone Question:"):
                 standalone = standalone.replace("Standalone Question:", "").strip()
             return standalone
@@ -157,14 +245,14 @@ class RAGPipeline:
         formatted_prompt = prompt_template.format()
         
         try:
-            answer = self.llm.invoke(formatted_prompt)
+            answer = self._invoke_llm(self.llm, messages)
             return {
                 "answer": answer,
                 "sources": sources
             }
         except Exception as e:
             return {
-                "answer": f"Error communicating with Ollama: {str(e)}",
+                "answer": f"Error communicating with LLM: {str(e)}",
                 "sources": []
             }
 
@@ -237,12 +325,12 @@ class RAGPipeline:
         
         # 4. Stream tokens
         try:
-            for chunk in self.llm.stream(formatted_prompt):
+            for chunk in self._stream_llm(self.llm, messages):
                 yield {"type": "token", "content": chunk}
         except Exception as e:
             yield {
                 "type": "token",
-                "content": f"Error communicating with Ollama: {str(e)}. Make sure Ollama is running and you have pulled '{self.model_name}'."
+                "content": f"Error communicating with LLM: {str(e)}."
             }
             
         # 5. Yield sources
@@ -302,7 +390,7 @@ class RAGPipeline:
         formatted_prompt = prompt_template.format(text=full_text)
         
         try:
-            summary = self.llm.invoke(formatted_prompt)
+            summary = self._invoke_llm(self.llm, formatted_prompt)
             return summary
         except Exception as e:
             return f"Error generating summary: {str(e)}"
@@ -351,7 +439,7 @@ class RAGPipeline:
         formatted_prompt = prompt_template.format(text=full_text)
         
         try:
-            quiz_output = self.json_llm.invoke(formatted_prompt).strip()
+            quiz_output = self._invoke_llm(self.json_llm, formatted_prompt).strip()
             
             # Clean up markdown code blocks if the LLM included them
             if quiz_output.startswith("```"):
@@ -387,7 +475,7 @@ class RAGPipeline:
         formatted_prompt = prompt_template.format(text=text)
         
         try:
-            explanation = self.llm.invoke(formatted_prompt).strip()
+            explanation = self._invoke_llm(self.llm, formatted_prompt).strip()
             return explanation
         except Exception as e:
             return f"Error generating simple explanation: {str(e)}"
@@ -412,7 +500,7 @@ class RAGPipeline:
         formatted_prompt = prompt_template.format(text=text)
         
         try:
-            translation = self.llm.invoke(formatted_prompt).strip()
+            translation = self._invoke_llm(self.llm, formatted_prompt).strip()
             return translation
         except Exception as e:
             return f"Error generating translation: {str(e)}"
@@ -452,7 +540,7 @@ class RAGPipeline:
         formatted_prompt = prompt_template.format(text=extracted_text)
         
         try:
-            summary = self.llm.invoke(formatted_prompt).strip()
+            summary = self._invoke_llm(self.llm, formatted_prompt).strip()
         except Exception as e:
             summary = f"Error generating page summary: {str(e)}"
             
@@ -555,7 +643,7 @@ class RAGPipeline:
         )
         
         try:
-            comparison_output = self.json_llm.invoke(formatted_prompt).strip()
+            comparison_output = self._invoke_llm(self.json_llm, formatted_prompt).strip()
             
             # Clean up markdown code blocks if the LLM included them
             if comparison_output.startswith("```"):
@@ -625,7 +713,7 @@ class RAGPipeline:
         )
         
         try:
-            notes_output = self.json_llm.invoke(formatted_prompt).strip()
+            notes_output = self._invoke_llm(self.json_llm, formatted_prompt).strip()
             
             # Clean up markdown code blocks if the LLM included them
             if notes_output.startswith("```"):
@@ -702,7 +790,7 @@ class RAGPipeline:
         )
         
         try:
-            interview_output = self.json_llm.invoke(formatted_prompt).strip()
+            interview_output = self._invoke_llm(self.json_llm, formatted_prompt).strip()
             
             # Clean up markdown code blocks if the LLM included them
             if interview_output.startswith("```"):
@@ -771,7 +859,7 @@ class RAGPipeline:
         )
         
         try:
-            flashcard_output = self.json_llm.invoke(formatted_prompt).strip()
+            flashcard_output = self._invoke_llm(self.json_llm, formatted_prompt).strip()
             
             # Clean up markdown code blocks if the LLM included them
             if flashcard_output.startswith("```"):

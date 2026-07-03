@@ -12,11 +12,16 @@ from chatbot.rag_pipeline import RAGPipeline
 app = Flask(__name__)
 
 # Configurations
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+if os.environ.get("VERCEL"):
+    UPLOAD_FOLDER = '/tmp/uploads'
+    CHAT_HISTORY_FILE = '/tmp/chat_history.json'
+else:
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+    CHAT_HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chat_history.json')
+
 ALLOWED_EXTENSIONS = {'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max limit
-CHAT_HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'chat_history.json')
 
 # Ensure upload directory exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
