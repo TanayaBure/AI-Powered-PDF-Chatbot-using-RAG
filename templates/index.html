@@ -909,6 +909,14 @@
                 }
             });
 
+            // Prevent default drag/drop behaviors globally to avoid browser navigation
+            window.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            }, false);
+            window.addEventListener('drop', (e) => {
+                e.preventDefault();
+            }, false);
+
             fileInput.addEventListener('change', () => {
                 if (fileInput.files.length > 0) {
                     handleMultipleUploads(Array.from(fileInput.files));
@@ -916,7 +924,7 @@
             });
 
             async function handleMultipleUploads(files) {
-                const pdfFiles = files.filter(file => file.type === 'application/pdf');
+                const pdfFiles = files.filter(file => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'));
                 if (pdfFiles.length === 0) {
                     alert('Only PDF files are supported.');
                     return;
