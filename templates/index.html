@@ -903,7 +903,9 @@
                         });
                         
                         updateDocumentList(response.uploaded_files);
-                        chatStatusText.textContent = 'Ready to answer questions based on your PDFs.';
+                        if (chatStatusText) {
+                            chatStatusText.textContent = 'Ready to answer questions based on your PDFs.';
+                        }
                         userInput.disabled = false;
                         sendBtn.disabled = false;
                         
@@ -992,7 +994,9 @@
                     if (compareDocsBtn) compareDocsBtn.disabled = true;
                     userInput.disabled = true;
                     sendBtn.disabled = true;
-                    chatStatusText.textContent = 'Upload a PDF to start chatting.';
+                    if (chatStatusText) {
+                        chatStatusText.textContent = 'Upload a PDF to start chatting.';
+                    }
                 } else {
                     files.forEach(file => {
                         const item = document.createElement('div');
