@@ -890,8 +890,10 @@
             // Drag and drop events for multiple files with drag counter to prevent flickering
             let dragCounter = 0;
             
-            dropZone.addEventListener('click', () => {
-                fileInput.click();
+            dropZone.addEventListener('click', (e) => {
+                if (e.target !== fileInput) {
+                    fileInput.click();
+                }
             });
             
             dropZone.addEventListener('dragenter', (e) => {
