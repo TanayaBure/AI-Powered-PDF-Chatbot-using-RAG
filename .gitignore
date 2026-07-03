@@ -1,0 +1,24 @@
+# Virtual environment
+venv/
+.venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local database / index
+faiss_index/
+
+# Uploaded documents
+uploads/
+
+# Local state / history
+chat_history.json
+
+# IDE config
+.vscode/
+.idea/
+.DS_Store

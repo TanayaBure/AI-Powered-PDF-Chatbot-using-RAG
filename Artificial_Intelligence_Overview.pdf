@@ -1,0 +1,69 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 595 842] /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1180 >>
+stream
+BT
+/F1 16 Tf
+50 780 Td
+20 TL
+(Artificial Intelligence (AI) Overview) Tj
+T*
+/F1 11 Tf
+T*
+(Artificial Intelligence \(AI\) refers to the simulation of human intelligence in) Tj
+T*
+(machines that are programmed to think like humans and mimic their actions. The term) Tj
+T*
+(may also be applied to any machine that exhibits traits associated with a human mind) Tj
+T*
+(such as learning and problem-solving.) Tj
+T*
+T*
+(The ideal characteristic of artificial intelligence is its ability to take actions) Tj
+T*
+(that have the best chance of achieving a specific goal. A subset of artificial) Tj
+T*
+(intelligence is machine learning, which refers to the concept that computer programs) Tj
+T*
+(can automatically learn from and adapt to new data without being assisted by humans.) Tj
+T*
+T*
+(AI applications include advanced web search engines, recommendation systems,) Tj
+T*
+(understanding human speech \(such as Siri and Alexa\), self-driving cars, and) Tj
+T*
+(generative AI tools \(like ChatGPT\). As machines become increasingly capable, tasks) Tj
+T*
+(considered to require intelligence are often removed from the definition of AI, a) Tj
+T*
+(phenomenon known as the AI effect.) Tj
+T*
+T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1543
+%%EOF

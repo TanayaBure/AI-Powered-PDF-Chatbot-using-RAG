@@ -1,0 +1,69 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 595 842] /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 1150 >>
+stream
+BT
+/F1 16 Tf
+50 780 Td
+20 TL
+(Introduction to Machine Learning (ML)) Tj
+T*
+/F1 11 Tf
+T*
+(Machine Learning \(ML\) is a field of study in artificial intelligence concerned with) Tj
+T*
+(the development and study of statistical algorithms that can learn from data and) Tj
+T*
+(generalize to unseen data, and thus perform tasks without explicit instructions.) Tj
+T*
+T*
+(ML algorithms are used in a wide variety of applications, such as in medicine, email) Tj
+T*
+(filtering, speech recognition, agriculture, and computer vision, where it is) Tj
+T*
+(difficult or unfeasible to develop conventional algorithms to perform the needed) Tj
+T*
+(tasks.) Tj
+T*
+T*
+(Types of machine learning algorithms are traditionally divided into three broad) Tj
+T*
+(categories: supervised learning, unsupervised learning, and reinforcement learning.) Tj
+T*
+(Supervised learning algorithms build a mathematical model of a set of data that) Tj
+T*
+(contains both the inputs and the desired outputs. Unsupervised learning algorithms) Tj
+T*
+(take a set of data that contains only inputs, and find structure in the data, like) Tj
+T*
+(grouping or clustering of data points.) Tj
+T*
+T*
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1513
+%%EOF

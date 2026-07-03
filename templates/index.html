@@ -1,0 +1,3122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuMind - Enterprise AI PDF Chatbot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Markdown parsing and sanitization libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Sidebar Brand -->
+            <div class="sidebar-brand">
+                <div class="logo" id="logo-brand" style="cursor: pointer;" title="Go to Home">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <path d="M12 18v-6"/>
+                        <path d="M8 15h8"/>
+                    </svg>
+                    <h1>DocuMind</h1>
+                </div>
+            </div>
+
+            <!-- Home Item (Pinned at the top) -->
+            <div class="nav-item active" id="nav-home" title="Go to Home / Upload Page">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Home</span>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="sidebar-scroll-container">
+                <!-- Navigation Items -->
+                <nav class="sidebar-nav">
+
+                    <!-- AI Tools Section -->
+                    <div class="nav-section">
+                        <div class="nav-section-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            <span>AI Tools</span>
+                        </div>
+                        <div class="tools-list">
+                            <div class="tool-item tool-card" id="tool-summarize" title="Summarize PDF">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                                <span>Summarize PDF</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-notes" title="Generate Notes">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/></svg>
+                                <span>Generate Notes</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-quiz" title="Generate Quiz">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span>Generate Quiz</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-flashcards" title="Generate Flashcards">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layers"><path d="m12 3-10 5 10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
+                                <span>Flashcards</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-interview" title="Interview Prep">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
+                                <span>Interview Questions</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-eli10" title="Explain Simply">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-brain"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M12 5v14"/></svg>
+                                <span>Explain Simply</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-translate" title="Translate Answer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-languages"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>
+                                <span>Translate</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-compare" title="Compare PDFs">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-files"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/></svg>
+                                <span>Compare PDFs</span>
+                            </div>
+                            <div class="tool-item tool-card" id="tool-page-search" title="Ask by Page">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                <span>Ask by Page</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Uploaded Documents Section -->
+                    <div class="nav-section">
+                        <div class="nav-section-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            <span>Uploaded Documents</span>
+                        </div>
+                        <!-- Document List -->
+                        <div class="document-list" id="document-list">
+                            {% if uploaded_files %}
+                                {% for file in uploaded_files %}
+                                    <div class="document-item" data-filename="{{ file }}">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-icon">
+                                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                        </svg>
+                                        <span class="doc-name" title="{{ file }}">{{ file }}</span>
+                                        <div class="doc-actions">
+                                            <button class="btn-summarize-file" title="Summarize PDF">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                            </button>
+                                            <button class="btn-quiz-file" title="Generate Quiz">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>
+                                            </button>
+                                            <button class="btn-notes-file" title="Generate Notes">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                            </button>
+                                            <button class="btn-interview-file" title="Generate Interview Questions">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg>
+                                            </button>
+                                            <button class="btn-flashcards-file" title="Generate Flashcards">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/></svg>
+                                            </button>
+                                            <button class="btn-delete-file" title="Delete file from index">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <polyline points="3 6 5 6 21 6"/>
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-docs" id="empty-docs">
+                                    <p>No documents uploaded.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Recent Chats Section -->
+                    <div class="nav-section recent-chats-section">
+                        <div class="nav-section-title-wrapper">
+                            <div class="nav-section-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span>Recent Chats</span>
+                            </div>
+                            <button class="btn-new-chat" id="new-chat-btn" title="Start a new chat">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                        </div>
+                        <div class="chat-list" id="chat-list">
+                            <!-- Loaded dynamically -->
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="footer-actions">
+                    <button class="btn-footer-action btn-clear" id="clear-btn" title="Clear all indexed documents" style="width: 100%;" {% if not uploaded_files %}disabled{% endif %}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        <span>Clear Database</span>
+                    </button>
+                </div>
+                <div class="status-panel" style="display: none;">
+                    <div class="status-item">
+                        <span class="status-dot red" id="ollama-status-dot"></span>
+                        <span class="status-text" id="ollama-status-text">Ollama: Offline</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot red" id="model-status-dot"></span>
+                        <span class="status-text" id="model-status-text">Model: llama3.2</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-dot green" id="db-status-dot"></span>
+                        <span class="status-text" id="db-status-text">Vector DB: Active</span>
+                    </div>
+                    <div class="status-info">
+                        <span>Version 1.2.0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <!-- Ambient Background Glows -->
+            <div class="ambient-glows">
+                <div class="glow-orb orb-1"></div>
+                <div class="glow-orb orb-2"></div>
+            </div>
+
+            <!-- Theme Toggle Button in top-right corner -->
+            <button class="theme-toggle-corner" id="theme-toggle-btn" title="Toggle Theme">
+                <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+
+            <!-- Home Page View -->
+            <div class="home-page-view" id="home-page-view">
+                <div class="home-content">
+                    <!-- Welcome Header (Before Drag & Drop) -->
+                    <div class="welcome-header">
+                        <div class="welcome-badge">⚡ Next-Gen PDF Assistant</div>
+                        <h2>Welcome to DocuMind</h2>
+                        <p>Upload one or more PDF documents to begin chatting with your AI assistant.</p>
+                    </div>
+
+                    <!-- Medium-Sized Center Upload Card -->
+                    <div class="main-upload-container">
+                        <div class="upload-drag-area" id="drop-zone">
+                            <input type="file" id="file-input" accept=".pdf" style="display: none;" multiple>
+                            <div class="upload-icon-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+                            </div>
+                            <h3>Drag & Drop your PDF</h3>
+                            <p class="upload-or">or <span class="browse-link">Browse Files</span></p>
+                            <div class="upload-limits">
+                                <span>Supported format: PDF</span>
+                                <span class="separator">•</span>
+                                <span>Max size: 50MB</span>
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div class="progress-container" id="progress-container" style="display: none;">
+                            <div class="progress-info">
+                                <span id="progress-text">Uploading...</span>
+                                <span id="progress-percent">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Three Sections below Drag & Drop -->
+                    <div class="home-sections-grid">
+                        <!-- Section 1: Welcome -->
+                        <div class="home-section-card welcome-card">
+                            <div class="section-card-badge yellow">⚡ DocuMind AI</div>
+                            <h3>Welcome to DocuMind</h3>
+                            <p>Upload one or more PDF documents to begin chatting with your intelligent study assistant.</p>
+                        </div>
+                        
+                        <!-- Section 2: Study Tools -->
+                        <div class="home-section-card tools-card-feature">
+                            <div class="section-card-badge purple">🧠 Smart Study</div>
+                            <h3>Smart Study Tools</h3>
+                            <p>Instantly generate revision notes, interactive quizzes, flashcards, and interview prep questions from your files.</p>
+                        </div>
+                        
+                        <!-- Section 3: Document Analytics / Compare -->
+                        <div class="home-section-card analytics-card">
+                            <div class="section-card-badge blue">📑 Document Sync</div>
+                            <h3>Compare & Analyze</h3>
+                            <p>Compare multiple PDFs side-by-side, search specific pages, and extract unified key highlights.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- App Footer -->
+                <footer class="app-footer">
+                    <div class="footer-columns">
+                        <!-- Column 1: Brand -->
+                        <div class="footer-col brand-col">
+                            <div class="footer-brand">
+                                <svg class="logo-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2a10 10 0 0 0-7.54 16.59c.22.25.29.6.18.92l-.8 2.4a.5.5 0 0 0 .63.63l2.4-.8a1 1 0 0 1 .92.18A10 10 0 1 0 12 2z"/>
+                                </svg>
+                                <h4>DocuMind</h4>
+                            </div>
+                            <div class="footer-subbrand">AI-Powered PDF Assistant</div>
+                            <p class="footer-desc">Upload, analyze, summarize, and chat with your PDF documents using Generative AI.</p>
+                        </div>
+
+                        <!-- Column 2: Features -->
+                        <div class="footer-col features-col">
+                            <h5>Features</h5>
+                            <ul>
+                                <li><a href="#" onclick="document.getElementById('nav-home')?.click(); return false;">Chat with PDF</a></li>
+                                <li><a href="#" onclick="document.getElementById('tool-summarize')?.click(); return false;">AI Summarizer</a></li>
+                                <li><a href="#" onclick="document.getElementById('tool-notes')?.click(); return false;">Notes Generator</a></li>
+                                <li><a href="#" onclick="document.getElementById('tool-quiz')?.click(); return false;">Quiz Generator</a></li>
+                                <li><a href="#" onclick="document.getElementById('tool-flashcards')?.click(); return false;">Flashcards</a></li>
+                                <li><a href="#" onclick="document.getElementById('tool-interview')?.click(); return false;">Interview Questions</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Column 3: Technologies -->
+                        <div class="footer-col tech-col">
+                            <h5>Technologies</h5>
+                            <div class="tech-badges">
+                                <span class="tech-badge">Python</span>
+                                <span class="tech-badge">Flask</span>
+                                <span class="tech-badge">LangChain</span>
+                                <span class="tech-badge">FAISS</span>
+                                <span class="tech-badge">HuggingFace</span>
+                                <span class="tech-badge">Ollama</span>
+                                <span class="tech-badge">Llama 3.2</span>
+                            </div>
+                        </div>
+
+                        <!-- Column 4: System Status -->
+                        <div class="footer-col status-col">
+                            <h5>System Status</h5>
+                            <div class="footer-status-panel">
+                                <div class="footer-status-item">
+                                    <span class="footer-status-dot red" id="footer-ollama-dot"></span>
+                                    <span id="footer-ollama-text">Ollama: Offline</span>
+                                </div>
+                                <div class="footer-status-item">
+                                    <span class="footer-status-dot red" id="footer-model-dot"></span>
+                                    <span id="footer-model-text">Model: llama3.2</span>
+                                </div>
+                                <div class="footer-status-item">
+                                    <span class="footer-status-dot red" id="footer-db-dot"></span>
+                                    <span id="footer-db-text">Vector DB: FAISS</span>
+                                </div>
+                                <div class="footer-status-item">
+                                    <span class="footer-status-dot green"></span>
+                                    <span>Embeddings: HuggingFace</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer-bottom">
+                        <p class="copyright">© 2026 DocuMind. All Rights Reserved.</p>
+                        <p class="credits">Made with ❤️ by Tanaya Bure.</p>
+                    </div>
+                </footer>
+            </div>
+
+            <!-- Chat View -->
+            <div class="chat-view" id="chat-view" style="display: none;">
+                <div class="chat-container">
+                    <!-- Chat Header -->
+                    <header class="chat-header">
+                        <div class="chat-header-left">
+                            <h2 id="chat-title" style="display: none;">AI Conversation</h2>
+                            <div class="active-doc-indicator">
+                                <div class="pulse-dot"></div>
+                                <span id="active-files-text">No active documents</span>
+                            </div>
+                        </div>
+                        <div class="chat-header-actions">
+                            <div class="dropdown">
+                                <button class="btn-action dropdown-toggle" id="export-dropdown-btn">Export Chat</button>
+                                <div class="dropdown-menu" id="export-menu">
+                                    <button class="dropdown-item" id="download-txt-btn">As Text (.txt)</button>
+                                    <button class="dropdown-item" id="print-pdf-btn">Print / Save as PDF</button>
+                                </div>
+                            </div>
+                            <div class="tech-badges">
+                                <span class="badge">Llama 3.2</span>
+                                <span class="badge">FAISS</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Chat Messages -->
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Hidden welcome-screen to maintain compatibility with JS parentNode.remove calls -->
+                        <div id="welcome-screen" style="display: none;"></div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <footer class="chat-input-container">
+                        <form id="chat-form" class="chat-form">
+                            <button type="button" id="voice-btn" class="btn-voice" title="Start voice typing">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    <line x1="12" y1="19" x2="12" y2="23"/>
+                                    <line x1="8" y1="23" x2="16" y2="23"/>
+                                </svg>
+                            </button>
+                            <input 
+                                type="number" 
+                                id="page-input" 
+                                placeholder="Pg" 
+                                min="1"
+                                title="Enter a page number to search only on that page"
+                                class="page-number-input"
+                            >
+                            <input 
+                                type="text" 
+                                id="user-input" 
+                                placeholder="Ask something about your uploaded PDFs..." 
+                                autocomplete="off"
+                                required
+                            >
+                            <button type="submit" id="send-btn" class="btn-send">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </footer>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right PDF Viewer Side Panel -->
+        <aside class="pdf-viewer-panel" id="pdf-viewer-panel" style="display: none;">
+            <div class="pdf-viewer-header">
+                <h3>Document Viewer</h3>
+                <button class="btn-close-pdf" id="close-pdf-btn" title="Close Viewer">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="pdf-viewer-snippet" id="pdf-viewer-snippet-container">
+                <h4>Source Snippet:</h4>
+                <p id="pdf-viewer-snippet-text"></p>
+                <div class="snippet-meta">
+                    <span class="badge" id="pdf-viewer-snippet-page">Page -</span>
+                    <span class="badge" id="pdf-viewer-snippet-confidence">-% Match</span>
+                </div>
+            </div>
+            <div class="pdf-viewer-body">
+                <iframe id="pdf-iframe" src="" width="100%" height="100%"></iframe>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Compare PDF Modal -->
+    <div class="modal" id="compare-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Compare PDF Documents</h3>
+                <button class="btn-close-modal" id="close-compare-btn" title="Close Modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="compare-select-group">
+                    <div class="select-wrapper">
+                        <label for="compare-pdf-1">First Document</label>
+                        <select id="compare-pdf-1" class="compare-select"></select>
+                    </div>
+                    <div class="select-wrapper">
+                        <label for="compare-pdf-2">Second Document</label>
+                        <select id="compare-pdf-2" class="compare-select"></select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-action btn-run-compare" id="run-compare-btn">Compare Documents</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tool Document Selector Modal -->
+    <div class="modal-overlay" id="tool-doc-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Document</h3>
+                <button class="btn-close-modal" id="close-tool-doc-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="tool-doc-prompt">Select a document to run this tool on:</p>
+                <div class="form-group">
+                    <label for="tool-doc-select">Document</label>
+                    <select id="tool-doc-select" class="form-control"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btn-cancel-tool-doc">Cancel</button>
+                <button class="btn-primary" id="btn-submit-tool-doc">Run Tool</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tool Translate Modal -->
+    <div class="modal-overlay" id="tool-translate-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Translate Last Answer</h3>
+                <button class="btn-close-modal" id="close-tool-translate-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select a language to translate the latest AI answer:</p>
+                <div class="form-group">
+                    <label for="tool-translate-select">Language</label>
+                    <select id="tool-translate-select" class="form-control">
+                        <option value="Hindi">Hindi (हिंदी)</option>
+                        <option value="Marathi">Marathi (मराठी)</option>
+                        <option value="English">English (Original)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btn-cancel-tool-translate">Cancel</button>
+                <button class="btn-primary" id="btn-submit-tool-translate">Translate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('file-input');
+            const documentList = document.getElementById('document-list');
+            const clearBtn = document.getElementById('clear-btn');
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const progressPercent = document.getElementById('progress-percent');
+            const chatMessages = document.getElementById('chat-messages');
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const chatForm = document.getElementById('chat-form');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatStatusText = document.getElementById('chat-status-text');
+            const voiceBtn = document.getElementById('voice-btn');
+            
+            // Status elements
+            const ollamaDot = document.getElementById('ollama-status-dot');
+            const ollamaText = document.getElementById('ollama-status-text');
+            const modelDot = document.getElementById('model-status-dot');
+            const modelText = document.getElementById('model-status-text');
+
+            // Themes
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const sunIcon = themeToggleBtn.querySelector('.sun-icon');
+            const moonIcon = themeToggleBtn.querySelector('.moon-icon');
+
+            // PDF Viewer elements
+            const pdfViewerPanel = document.getElementById('pdf-viewer-panel');
+            const closePdfBtn = document.getElementById('close-pdf-btn');
+            const pdfIframe = document.getElementById('pdf-iframe');
+            const pdfSnippetText = document.getElementById('pdf-viewer-snippet-text');
+            const pdfSnippetPage = document.getElementById('pdf-viewer-snippet-page');
+            const pdfSnippetConfidence = document.getElementById('pdf-viewer-snippet-confidence');
+
+            // Chat Sessions elements
+            const chatList = document.getElementById('chat-list');
+            const newChatBtn = document.getElementById('new-chat-btn');
+            const chatTitle = document.getElementById('chat-title');
+
+            // Export elements
+            const exportDropdownBtn = document.getElementById('export-dropdown-btn');
+            const exportMenu = document.getElementById('export-menu');
+            const downloadTxtBtn = document.getElementById('download-txt-btn');
+            const printPdfBtn = document.getElementById('print-pdf-btn');
+
+            let activeChatId = null;
+            let chats = {};
+            let isRecording = false;
+            let recognition = null;
+
+            // Initialize Light/Dark Theme
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            if (currentTheme === 'light') {
+                document.body.classList.add('light-theme');
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            }
+
+            // Initialize Vector DB status in footer and sidebar
+            const initialFilesCount = document.querySelectorAll('.document-item').length;
+            const dbStatusDot = document.getElementById('db-status-dot');
+            const dbStatusText = document.getElementById('db-status-text');
+            const footerDbDot = document.getElementById('footer-db-dot');
+            const footerDbText = document.getElementById('footer-db-text');
+            
+            if (initialFilesCount > 0) {
+                if (dbStatusDot) dbStatusDot.className = 'status-dot green';
+                if (dbStatusText) dbStatusText.textContent = 'Vector DB: Active';
+                if (footerDbDot) footerDbDot.className = 'footer-status-dot green';
+                if (footerDbText) footerDbText.textContent = 'Vector DB: Active';
+            } else {
+                if (dbStatusDot) dbStatusDot.className = 'status-dot red';
+                if (dbStatusText) dbStatusText.textContent = 'Vector DB: Empty';
+                if (footerDbDot) footerDbDot.className = 'footer-status-dot red';
+                if (footerDbText) footerDbText.textContent = 'Vector DB: Empty';
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                const isLight = document.body.classList.contains('light-theme');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+                if (isLight) {
+                    sunIcon.style.display = 'none';
+                    moonIcon.style.display = 'block';
+                } else {
+                    sunIcon.style.display = 'block';
+                    moonIcon.style.display = 'none';
+                }
+            });
+
+            // Toggle Export Dropdown
+            exportDropdownBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                exportMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', () => {
+                exportMenu.classList.remove('show');
+            });
+
+            // Export Chat to TXT
+            downloadTxtBtn.addEventListener('click', () => {
+                if (!activeChatId || !chats[activeChatId]) return;
+                const messages = chats[activeChatId].messages;
+                if (!messages || messages.length === 0) {
+                    alert('No messages to export.');
+                    return;
+                }
+                
+                let textContent = `DocuMind Conversation - ${chats[activeChatId].title}\n`;
+                textContent += `Exported on: ${new Date().toLocaleString()}\n`;
+                textContent += `=========================================\n\n`;
+
+                messages.forEach(msg => {
+                    const role = msg.role === 'user' ? 'User' : 'AI Assistant';
+                    textContent += `[${role}]:\n${msg.text}\n\n`;
+                    if (msg.sources && msg.sources.length > 0) {
+                        textContent += `Sources:\n`;
+                        msg.sources.forEach(src => {
+                            textContent += `- ${src.source} (Page ${src.page}, Chunk ${src.chunk_index}) - Confidence: ${src.confidence}%\n`;
+                        });
+                        textContent += `\n`;
+                    }
+                    textContent += `-----------------------------------------\n\n`;
+                });
+
+                const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `DocuMind_Chat_${chats[activeChatId].title.replace(/\s+/g, '_')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // Print Chat (Save as PDF)
+            printPdfBtn.addEventListener('click', () => {
+                window.print();
+            });
+
+            // Periodic status check
+            function checkStatus() {
+                const footerOllamaDot = document.getElementById('footer-ollama-dot');
+                const footerOllamaText = document.getElementById('footer-ollama-text');
+                const footerModelDot = document.getElementById('footer-model-dot');
+                const footerModelText = document.getElementById('footer-model-text');
+
+                fetch('/status')
+                    .then(res => res.json())
+                    .then(data => {
+                        // Ollama Status
+                        if (data.ollama_running) {
+                            ollamaDot.className = 'status-dot green';
+                            ollamaText.textContent = 'Running';
+                            if (footerOllamaDot) footerOllamaDot.className = 'footer-status-dot green';
+                            if (footerOllamaText) footerOllamaText.textContent = 'Ollama: Running';
+                        } else {
+                            ollamaDot.className = 'status-dot red';
+                            ollamaText.textContent = 'Offline';
+                            if (footerOllamaDot) footerOllamaDot.className = 'footer-status-dot red';
+                            if (footerOllamaText) footerOllamaText.textContent = 'Ollama: Offline';
+                        }
+
+                        // Model Status
+                        if (data.model_available) {
+                            modelDot.className = 'status-dot green';
+                            modelText.textContent = 'Available';
+                            if (footerModelDot) footerModelDot.className = 'footer-status-dot green';
+                            if (footerModelText) footerModelText.textContent = 'Model: Llama 3.2 (Active)';
+                        } else if (data.ollama_running) {
+                            modelDot.className = 'status-dot yellow';
+                            modelText.textContent = 'Not Found (Run `ollama pull llama3.2`)';
+                            if (footerModelDot) footerModelDot.className = 'footer-status-dot yellow';
+                            if (footerModelText) footerModelText.textContent = 'Model: Llama 3.2 (Not Found)';
+                        } else {
+                            modelDot.className = 'status-dot red';
+                            modelText.textContent = 'Offline';
+                            if (footerModelDot) footerModelDot.className = 'footer-status-dot red';
+                            if (footerModelText) footerModelText.textContent = 'Model: Llama 3.2 (Offline)';
+                        }
+                    })
+                    .catch(() => {
+                        ollamaDot.className = 'status-dot red';
+                        ollamaText.textContent = 'Error';
+                        modelDot.className = 'status-dot red';
+                        modelText.textContent = 'Error';
+                        if (footerOllamaDot) {
+                            footerOllamaDot.className = 'footer-status-dot red';
+                            footerOllamaText.textContent = 'Ollama: Error';
+                        }
+                        if (footerModelDot) {
+                            footerModelDot.className = 'footer-status-dot red';
+                            footerModelText.textContent = 'Model: Error';
+                        }
+                    });
+            }
+
+            checkStatus();
+            setInterval(checkStatus, 10000); // Check every 10 seconds
+
+            // Load Chat History Sessions
+            function loadChatSessions() {
+                fetch('/chats')
+                    .then(res => res.json())
+                    .then(data => {
+                        chats = data;
+                        renderChatSessions();
+                        
+                        // Select the first chat or create one if none exist
+                        const chatIds = Object.keys(chats);
+                        if (chatIds.length > 0) {
+                            selectChatSession(chatIds[0], false);
+                        } else {
+                            createNewChatSession(false);
+                        }
+                    });
+            }
+
+            function renderChatSessions() {
+                chatList.innerHTML = '';
+                Object.values(chats).forEach(chat => {
+                    const item = document.createElement('div');
+                    item.className = `chat-session-item ${chat.id === activeChatId ? 'active' : ''}`;
+                    item.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chat-icon">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span class="chat-session-title" title="${chat.title}">${chat.title}</span>
+                        <button class="btn-delete-chat" title="Delete conversation">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </button>
+                    `;
+                    
+                    item.addEventListener('click', (e) => {
+                        if (e.target.closest('.btn-delete-chat')) {
+                            e.stopPropagation();
+                            deleteChatSession(chat.id);
+                        } else {
+                            selectChatSession(chat.id, true);
+                        }
+                    });
+                    
+                    chatList.appendChild(item);
+                });
+            }
+
+            function createNewChatSession(shouldSwitchView = true) {
+                fetch('/chats', { method: 'POST' })
+                    .then(res => res.json())
+                    .then(newChat => {
+                        chats[newChat.id] = newChat;
+                        selectChatSession(newChat.id, shouldSwitchView);
+                        renderChatSessions();
+                    });
+            }
+
+            function selectChatSession(chatId, shouldSwitchView = true) {
+                activeChatId = chatId;
+                renderChatSessions();
+                
+                const chat = chats[chatId];
+                chatTitle.textContent = chat.title;
+                
+                // Clear chat area
+                chatMessages.innerHTML = '';
+                
+                // Append welcome screen to maintain compatibility
+                chatMessages.appendChild(welcomeScreen);
+                
+                if (chat.messages && chat.messages.length > 0) {
+                    chat.messages.forEach((msg, idx) => {
+                        if (msg.role === 'user') {
+                            appendChatMessage('user', msg.text, [], null, idx);
+                        } else {
+                            appendChatMessage('ai', msg.text, msg.sources, msg.quiz, idx, msg.eli10, msg.translations, msg.page_search, msg.comparison, msg.notes, msg.interview_prep, msg.flashcards);
+                        }
+                    });
+                }
+                
+                // Switch view to chat and highlight chat tool if requested
+                if (shouldSwitchView) {
+                    if (window.showChatView) {
+                        window.showChatView();
+                    } else if (document.getElementById('chat-view')) {
+                        document.getElementById('home-page-view').style.display = 'none';
+                        document.getElementById('chat-view').style.display = 'block';
+                        // Highlight chat tool
+                        document.querySelectorAll('.nav-item, .tool-card').forEach(el => el.classList.remove('active'));
+                        const chatTool = document.getElementById('tool-chat');
+                        if (chatTool) chatTool.classList.add('active');
+                    }
+                }
+                
+                scrollToBottom();
+            }
+
+            function deleteChatSession(chatId) {
+                if (confirm('Are you sure you want to delete this conversation?')) {
+                    fetch(`/chats/${chatId}`, { method: 'DELETE' })
+                        .then(res => res.json())
+                        .then(() => {
+                            delete chats[chatId];
+                            if (activeChatId === chatId) {
+                                activeChatId = null;
+                            }
+                            loadChatSessions();
+                        });
+                }
+            }
+
+            newChatBtn.addEventListener('click', createNewChatSession);
+            loadChatSessions();
+
+            // Bind summarize and quiz buttons on initial load
+            document.querySelectorAll('.document-item').forEach(item => {
+                const filename = item.dataset.filename;
+                const sumBtn = item.querySelector('.btn-summarize-file');
+                if (sumBtn) {
+                    sumBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        summarizePDF(filename, sumBtn);
+                    });
+                }
+                const quizBtn = item.querySelector('.btn-quiz-file');
+                if (quizBtn) {
+                    quizBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        generateQuiz(filename, quizBtn);
+                    });
+                }
+            });
+
+            // Drag and drop events for multiple files
+            dropZone.addEventListener('click', () => fileInput.click());
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+
+            ['dragleave', 'dragend'].forEach(type => {
+                dropZone.addEventListener(type, () => {
+                    dropZone.classList.remove('dragover');
+                });
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) {
+                    handleMultipleUploads(Array.from(e.dataTransfer.files));
+                }
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    handleMultipleUploads(Array.from(fileInput.files));
+                }
+            });
+
+            async function handleMultipleUploads(files) {
+                const pdfFiles = files.filter(file => file.type === 'application/pdf');
+                if (pdfFiles.length === 0) {
+                    alert('Only PDF files are supported.');
+                    return;
+                }
+
+                // Show progress bar
+                progressContainer.style.display = 'block';
+                progressFill.style.width = '0%';
+                progressPercent.textContent = '0%';
+                progressText.textContent = `Uploading 1 of ${pdfFiles.length} files...`;
+
+                // Disable uploads while processing
+                dropZone.style.pointerEvents = 'none';
+                dropZone.style.opacity = '0.6';
+
+                for (let i = 0; i < pdfFiles.length; i++) {
+                    const file = pdfFiles[i];
+                    const percentBase = (i / pdfFiles.length) * 100;
+                    progressText.textContent = `Processing ${file.name} (${i + 1}/${pdfFiles.length})...`;
+                    
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+                        const response = await uploadSingleFile(formData, (percent) => {
+                            const currentProgress = percentBase + (percent / pdfFiles.length);
+                            progressFill.style.width = currentProgress + '%';
+                            progressPercent.textContent = Math.round(currentProgress) + '%';
+                        });
+                        
+                        updateDocumentList(response.uploaded_files);
+                        chatStatusText.textContent = 'Ready to answer questions based on your PDFs.';
+                        userInput.disabled = false;
+                        sendBtn.disabled = false;
+                        
+                        appendSystemMessage(response.message);
+                    } catch (error) {
+                        alert(`Failed to process ${file.name}: ${error}`);
+                    }
+                }
+
+                progressContainer.style.display = 'none';
+                dropZone.style.pointerEvents = 'auto';
+                dropZone.style.opacity = '1';
+                fileInput.value = '';
+            }
+
+            function uploadSingleFile(formData, onProgress) {
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/upload', true);
+
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            const percent = Math.round((e.loaded / e.total) * 100);
+                            onProgress(percent);
+                        }
+                    });
+
+                    xhr.onreadystatechange = () => {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                            if (xhr.status === 200) {
+                                resolve(JSON.parse(xhr.responseText));
+                            } else {
+                                let errorMsg = 'Upload failed';
+                                try {
+                                    errorMsg = JSON.parse(xhr.responseText).error || errorMsg;
+                                } catch (e) {}
+                                reject(errorMsg);
+                            }
+                        }
+                    };
+
+                    xhr.send(formData);
+                });
+            }
+
+            function updateDocumentList(files) {
+                documentList.innerHTML = '';
+                
+                // Update active files text in chat header
+                const activeFilesText = document.getElementById('active-files-text');
+                if (activeFilesText) {
+                    if (files.length === 0) {
+                        activeFilesText.textContent = 'No active documents';
+                    } else {
+                        activeFilesText.textContent = files.join(', ');
+                    }
+                }
+                
+                // Update Vector DB status in footer
+                const dbStatusDot = document.getElementById('db-status-dot');
+                const dbStatusText = document.getElementById('db-status-text');
+                const footerDbDot = document.getElementById('footer-db-dot');
+                const footerDbText = document.getElementById('footer-db-text');
+
+                if (dbStatusDot && dbStatusText) {
+                    if (files.length === 0) {
+                        dbStatusDot.className = 'status-dot red';
+                        dbStatusText.textContent = 'Vector DB: Empty';
+                        if (footerDbDot) footerDbDot.className = 'footer-status-dot red';
+                        if (footerDbText) footerDbText.textContent = 'Vector DB: Empty';
+                    } else {
+                        dbStatusDot.className = 'status-dot green';
+                        dbStatusText.textContent = 'Vector DB: Active';
+                        if (footerDbDot) footerDbDot.className = 'footer-status-dot green';
+                        if (footerDbText) footerDbText.textContent = 'Vector DB: Active';
+                    }
+                }
+
+                if (files.length === 0) {
+                    documentList.innerHTML = `
+                        <div class="empty-docs" id="empty-docs">
+                            <p>No documents uploaded yet.</p>
+                        </div>
+                    `;
+                    clearBtn.disabled = true;
+                    if (compareDocsBtn) compareDocsBtn.disabled = true;
+                    userInput.disabled = true;
+                    sendBtn.disabled = true;
+                    chatStatusText.textContent = 'Upload a PDF to start chatting.';
+                } else {
+                    files.forEach(file => {
+                        const item = document.createElement('div');
+                        item.className = 'document-item';
+                        item.dataset.filename = file;
+                        item.innerHTML = `
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-icon">
+                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <span class="doc-name" title="${file}">${file}</span>
+                            <div class="doc-actions">
+                                <button class="btn-summarize-file" title="Summarize PDF">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10 9 9 9 8 9"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-quiz-file" title="Generate Quiz">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-notes-file" title="Generate Notes">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 20h9"/>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-interview-file" title="Generate Interview Questions">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-flashcards-file" title="Generate Flashcards">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                                        <polyline points="2 17 12 22 22 17"/>
+                                        <polyline points="2 12 12 17 22 12"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-delete-file" title="Delete file from index">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Bind individual summarize button
+                        item.querySelector('.btn-summarize-file').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            summarizePDF(file, item.querySelector('.btn-summarize-file'));
+                        });
+ 
+                        // Bind individual quiz button
+                        item.querySelector('.btn-quiz-file').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            generateQuiz(file, item.querySelector('.btn-quiz-file'));
+                        });
+
+                        // Bind individual notes button
+                        item.querySelector('.btn-notes-file').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            generateNotes(file, item.querySelector('.btn-notes-file'));
+                        });
+
+                        // Bind individual interview button
+                        item.querySelector('.btn-interview-file').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            generateInterview(file, item.querySelector('.btn-interview-file'));
+                        });
+
+                        // Bind individual flashcards button
+                        item.querySelector('.btn-flashcards-file').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            generateFlashcards(file, item.querySelector('.btn-flashcards-file'));
+                        });
+
+                        // Bind individual delete button
+                        item.querySelector('.btn-delete-file').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            deleteSingleFile(file);
+                        });
+                        
+                        documentList.appendChild(item);
+                    });
+                    clearBtn.disabled = false;
+                    if (compareDocsBtn) compareDocsBtn.disabled = files.length < 2;
+                }
+            }
+
+            function deleteSingleFile(filename) {
+                if (confirm(`Are you sure you want to delete '${filename}'? This will rebuild the vector index.`)) {
+                    fetch('/delete_file', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: filename })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        updateDocumentList(data.uploaded_files);
+                        appendSystemMessage(`Deleted '${filename}' and rebuilt vector store.`);
+                    })
+                    .catch(() => {
+                        alert('Failed to delete file.');
+                    });
+                }
+            }
+
+            function summarizePDF(filename, button) {
+                if (!activeChatId) {
+                    alert('Please select or create a chat session first.');
+                    return;
+                }
+
+                // Disable button and add loading class
+                button.disabled = true;
+                button.classList.add('loading');
+
+                // Create a temporary system loading message in the chat
+                const loadingMsg = appendSystemMessage(`⏳ Analyzing and summarizing '${filename}'... This may take a moment.`);
+
+                fetch('/summarize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, chat_id: activeChatId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    // Remove loading message
+                    if (loadingMsg) {
+                        const allSysMsgs = document.querySelectorAll('.system-message');
+                        allSysMsgs.forEach(msg => {
+                            if (msg.textContent.includes(filename)) {
+                                msg.remove();
+                            }
+                        });
+                    }
+
+                    if (data.error) {
+                        appendSystemMessage(`❌ Error: ${data.error}`);
+                    } else {
+                        // Append the structured summary card
+                        appendSummaryCard(data.filename, data.summary);
+                        // Force chat history refresh
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    const allSysMsgs = document.querySelectorAll('.system-message');
+                    allSysMsgs.forEach(msg => {
+                        if (msg.textContent.includes(filename)) {
+                            msg.remove();
+                        }
+                    });
+                    appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+
+            function generateQuiz(filename, button) {
+                if (!activeChatId) {
+                    alert('Please select or create a chat session first.');
+                    return;
+                }
+
+                button.disabled = true;
+                button.classList.add('loading');
+
+                const loadingMsg = appendSystemMessage(`⏳ Generating a 10-question quiz from '${filename}'... This may take a moment.`);
+
+                fetch('/generate_quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, chat_id: activeChatId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (loadingMsg) {
+                        const allSysMsgs = document.querySelectorAll('.system-message');
+                        allSysMsgs.forEach(msg => {
+                            if (msg.textContent.includes(filename)) {
+                                msg.remove();
+                            }
+                        });
+                    }
+
+                    if (data.error) {
+                        appendSystemMessage(`❌ Error: ${data.error}`);
+                    } else {
+                        // Append the quiz card
+                        appendChatMessage('ai', `### Quiz Generated: ${data.filename}`, [], data.quiz);
+                        // Refresh history
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    const allSysMsgs = document.querySelectorAll('.system-message');
+                    allSysMsgs.forEach(msg => {
+                        if (msg.textContent.includes(filename)) {
+                            msg.remove();
+                        }
+                    });
+                    appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+
+            function generateInterview(filename, button) {
+                if (!activeChatId) {
+                    alert('Please select or create a chat session first.');
+                    return;
+                }
+
+                button.disabled = true;
+                button.classList.add('loading');
+
+                const loadingMsg = appendSystemMessage(`⏳ Generating interview preparation questions from '${filename}'... This may take a moment.`);
+
+                fetch('/generate_interview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, chat_id: activeChatId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (loadingMsg) {
+                        const allSysMsgs = document.querySelectorAll('.system-message');
+                        allSysMsgs.forEach(msg => {
+                            if (msg.textContent.includes(filename)) {
+                                msg.remove();
+                            }
+                        });
+                    }
+
+                    if (data.error) {
+                        appendSystemMessage(`❌ Error: ${data.error}`);
+                    } else {
+                        // Append the interview card
+                        appendChatMessage('ai', `### Interview Prep Generated: ${data.filename}`, [], null, chats[activeChatId].messages.length, null, null, null, null, null, data.interview_prep);
+                        // Refresh history
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    const allSysMsgs = document.querySelectorAll('.system-message');
+                    allSysMsgs.forEach(msg => {
+                        if (msg.textContent.includes(filename)) {
+                            msg.remove();
+                        }
+                    });
+                    appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+
+            function generateNotes(filename, button) {
+                if (!activeChatId) {
+                    alert('Please select or create a chat session first.');
+                    return;
+                }
+
+                button.disabled = true;
+                button.classList.add('loading');
+
+                const loadingMsg = appendSystemMessage(`⏳ Generating study and review notes from '${filename}'... This may take a moment.`);
+
+                fetch('/generate_notes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, chat_id: activeChatId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (loadingMsg) {
+                        const allSysMsgs = document.querySelectorAll('.system-message');
+                        allSysMsgs.forEach(msg => {
+                            if (msg.textContent.includes(filename)) {
+                                msg.remove();
+                            }
+                        });
+                    }
+
+                    if (data.error) {
+                        appendSystemMessage(`❌ Error: ${data.error}`);
+                    } else {
+                        // Append the notes card
+                        appendChatMessage('ai', `### Notes Generated: ${data.filename}`, [], null, chats[activeChatId].messages.length, null, null, null, null, data.notes);
+                        // Refresh history
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    const allSysMsgs = document.querySelectorAll('.system-message');
+                    allSysMsgs.forEach(msg => {
+                        if (msg.textContent.includes(filename)) {
+                            msg.remove();
+                        }
+                    });
+                    appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+
+            function printNotes(title, notesHtml) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Study Notes: ${title}</title>
+                        <style>
+                            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6; }
+                            h1 { font-size: 24px; border-bottom: 2px solid #10b981; padding-bottom: 10px; color: #0f172a; }
+                            .note-section { margin-bottom: 30px; page-break-inside: avoid; }
+                            h2 { font-size: 18px; color: #10b981; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+                            ul { padding-left: 20px; }
+                            li { margin-bottom: 6px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>DocuMind Study Notes: ${title}</h1>
+                        <div style="margin-bottom: 30px; color: #64748b;">Generated by DocuMind Local RAG Assistant.</div>
+                        ${notesHtml}
+                        <script>
+                            window.onload = function() {
+                                window.print();
+                            };
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            }
+
+            function printQuiz(title, quizHtml) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Quiz: ${title}</title>
+                        <style>
+                            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6; }
+                            h1 { font-size: 24px; border-bottom: 2px solid #6366f1; padding-bottom: 10px; color: #0f172a; }
+                            .quiz-item { margin-bottom: 24px; page-break-inside: avoid; border-bottom: 1px dashed #e2e8f0; padding-bottom: 16px; }
+                            .question { font-weight: 600; margin-bottom: 8px; font-size: 16px; }
+                            .difficulty { font-size: 12px; color: #64748b; font-style: italic; margin-bottom: 8px; }
+                            .options { list-style-type: none; padding-left: 0; margin-top: 10px; }
+                            .options li { margin-bottom: 6px; padding-left: 24px; position: relative; }
+                            .options li::before { content: "○"; position: absolute; left: 0; color: #6366f1; font-weight: bold; }
+                            .correct-answer { margin-top: 12px; font-weight: bold; color: #16a34a; font-size: 14px; background: #f0fdf4; display: inline-block; padding: 4px 8px; border-radius: 4px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>DocuMind AI Quiz: ${title}</h1>
+                        <div style="margin-bottom: 30px; color: #64748b;">Generated by DocuMind Local RAG Assistant.</div>
+                        ${quizHtml}
+                        <script>
+                            window.onload = function() {
+                                window.print();
+                                // Optional: window.close();
+                            };
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            }
+
+            function generateFlashcards(filename, button) {
+                if (!activeChatId) {
+                    alert('Please select or create a chat session first.');
+                    return;
+                }
+
+                button.disabled = true;
+                button.classList.add('loading');
+
+                const loadingMsg = appendSystemMessage(`⏳ Generating study flashcards from '${filename}'... This may take a moment.`);
+
+                fetch('/generate_flashcards', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: filename, chat_id: activeChatId })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (loadingMsg) {
+                        const allSysMsgs = document.querySelectorAll('.system-message');
+                        allSysMsgs.forEach(msg => {
+                            if (msg.textContent.includes(filename)) {
+                                msg.remove();
+                            }
+                        });
+                    }
+
+                    if (data.error) {
+                        appendSystemMessage(`❌ Error: ${data.error}`);
+                    } else {
+                        // Append the flashcards card
+                        appendChatMessage('ai', `### Flashcards Generated: ${data.filename}`, [], null, chats[activeChatId].messages.length, null, null, null, null, null, null, data.flashcards);
+                        // Refresh history
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    const allSysMsgs = document.querySelectorAll('.system-message');
+                    allSysMsgs.forEach(msg => {
+                        if (msg.textContent.includes(filename)) {
+                            msg.remove();
+                        }
+                    });
+                    appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                });
+            }
+
+            function printFlashcards(title, printHtml) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Flashcards: ${title}</title>
+                        <style>
+                            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6; }
+                            h1 { font-size: 24px; border-bottom: 2px solid #ec4899; padding-bottom: 10px; color: #0f172a; }
+                            .flashcard-print-item { margin-bottom: 24px; page-break-inside: avoid; border: 2px solid #f472b6; border-radius: 8px; padding: 20px; background: #fff5f7; }
+                            .card-num { font-size: 12px; color: #ec4899; font-weight: bold; text-transform: uppercase; margin-bottom: 8px; }
+                            .print-front { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+                            .print-back { font-size: 14px; color: #334155; border-top: 1px dashed #f472b6; padding-top: 12px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>DocuMind Study Flashcards: ${title}</h1>
+                        <div style="margin-bottom: 30px; color: #64748b;">Generated by DocuMind Local RAG Assistant.</div>
+                        ${printHtml}
+                        <script>
+                            window.onload = function() {
+                                window.print();
+                            };
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+            }
+
+            function appendSummaryCard(filename, summaryMarkdown) {
+                if (welcomeScreen.parentNode) {
+                    welcomeScreen.remove();
+                }
+
+                const msg = document.createElement('div');
+                msg.className = 'message ai-message summary-message';
+                
+                const sanitizedHtml = DOMPurify.sanitize(marked.parse(summaryMarkdown));
+
+                msg.innerHTML = `
+                    <div class="message-content summary-card">
+                        <div class="summary-card-header">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="summary-card-icon">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            <h3>Document Summary: ${escapeHtml(filename)}</h3>
+                        </div>
+                        <div class="summary-card-body">
+                            ${sanitizedHtml}
+                        </div>
+                    </div>
+                `;
+
+                chatMessages.appendChild(msg);
+                scrollToBottom();
+            }
+
+            function bindAiMessageEvents(msgElement, index, text, eli10Text = null, translations = null) {
+                if (index === null || index === undefined) return;
+                msgElement.dataset.index = index;
+                
+                // Initialize translations cache on the element
+                msgElement.translations = translations || {};
+                
+                const contentDiv = msgElement.querySelector('.message-content');
+                if (!contentDiv) return;
+                
+                // If it's a quiz or summary, don't add the Explain Simply / Translate buttons
+                const isSpecialCard = contentDiv.querySelector('.quiz-card') || contentDiv.querySelector('.summary-card');
+                
+                if (!isSpecialCard) {
+                    // Check if actions already exist
+                    if (!contentDiv.querySelector('.message-actions')) {
+                        // Add ELI10 section, Translation section, and action controls
+                        const actionsHtml = `
+                            <div class="eli10-section" style="${eli10Text ? 'display: block;' : 'display: none;'}">
+                                <div class="eli10-header">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="eli10-icon">
+                                        <path d="M12 2a10 10 0 0 0-7.54 16.59c.22.25.29.6.18.92l-.8 2.4a.5.5 0 0 0 .63.63l2.4-.8a1 1 0 0 1 .92.18A10 10 0 1 0 12 2z"/>
+                                        <path d="M8 10h8"/>
+                                        <path d="M8 14h6"/>
+                                    </svg>
+                                    <span>Explained Simply (ELI10)</span>
+                                </div>
+                                <div class="eli10-body">${eli10Text ? DOMPurify.sanitize(marked.parse(eli10Text)) : ''}</div>
+                            </div>
+
+                            <div class="translation-section" style="display: none;">
+                                <div class="translation-header">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="translation-icon">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="2" y1="12" x2="22" y2="12"/>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                    </svg>
+                                    <span class="translation-title">Translation</span>
+                                </div>
+                                <div class="translation-body"></div>
+                            </div>
+
+                            <div class="message-actions">
+                                <button class="btn-eli10" style="${eli10Text ? 'display: none;' : 'display: flex;'}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a10 10 0 0 0-7.54 16.59c.22.25.29.6.18.92l-.8 2.4a.5.5 0 0 0 .63.63l2.4-.8a1 1 0 0 1 .92.18A10 10 0 1 0 12 2z"/>
+                                    </svg>
+                                    <span>Explain Simply</span>
+                                </button>
+                                
+                                <div class="translation-controls">
+                                    <select class="select-lang">
+                                        <option value="English">English</option>
+                                        <option value="Hindi">Hindi (हिंदी)</option>
+                                        <option value="Marathi">Marathi (मराठी)</option>
+                                    </select>
+                                    <button class="btn-translate">Translate</button>
+                                </div>
+                            </div>
+                        `;
+                        contentDiv.insertAdjacentHTML('beforeend', actionsHtml);
+                    }
+                    
+                    const btnEli10 = contentDiv.querySelector('.btn-eli10');
+                    if (btnEli10) {
+                        btnEli10.addEventListener('click', () => {
+                            explainSimplyForMessage(index, text, contentDiv, btnEli10);
+                        });
+                    }
+
+                    const selectLang = contentDiv.querySelector('.select-lang');
+                    const btnTranslate = contentDiv.querySelector('.btn-translate');
+                    
+                    if (btnTranslate && selectLang) {
+                        btnTranslate.addEventListener('click', () => {
+                            const targetLang = selectLang.value;
+                            translateMessage(index, text, targetLang, msgElement, contentDiv, btnTranslate);
+                        });
+                    }
+                }
+            }
+
+            function translateMessage(index, text, targetLang, msgElement, contentDiv, button) {
+                const messageTextDiv = contentDiv.querySelector('.message-text');
+                const transSection = contentDiv.querySelector('.translation-section');
+                const transBody = contentDiv.querySelector('.translation-body');
+                const transTitle = contentDiv.querySelector('.translation-title');
+                
+                if (targetLang === 'English') {
+                    if (messageTextDiv) messageTextDiv.style.display = 'block';
+                    if (transSection) transSection.style.display = 'none';
+                    return;
+                }
+                
+                // Check if already cached
+                if (msgElement.translations && msgElement.translations[targetLang]) {
+                    if (messageTextDiv) messageTextDiv.style.display = 'none';
+                    if (transBody && transSection) {
+                        transBody.innerHTML = DOMPurify.sanitize(marked.parse(msgElement.translations[targetLang]));
+                        transTitle.textContent = `Translation (${targetLang})`;
+                        transSection.style.display = 'block';
+                    }
+                    return;
+                }
+                
+                button.disabled = true;
+                button.textContent = 'Translating...';
+                
+                fetch('/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        target_language: targetLang,
+                        chat_id: activeChatId,
+                        message_index: index
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(`Error: ${data.error}`);
+                    } else {
+                        if (!msgElement.translations) msgElement.translations = {};
+                        msgElement.translations[targetLang] = data.translation;
+                        
+                        if (messageTextDiv) messageTextDiv.style.display = 'none';
+                        if (transBody && transSection) {
+                            transBody.innerHTML = DOMPurify.sanitize(marked.parse(data.translation));
+                            transTitle.textContent = `Translation (${targetLang})`;
+                            transSection.style.display = 'block';
+                        }
+                        
+                        // Force chat history refresh
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    alert(`Failed to translate: ${err.message}`);
+                })
+                .finally(() => {
+                    button.disabled = false;
+                    button.textContent = 'Translate';
+                });
+            }
+
+            function explainSimplyForMessage(index, text, contentDiv, button) {
+                button.disabled = true;
+                const span = button.querySelector('span');
+                if (span) span.textContent = 'Simplifying...';
+                
+                fetch('/explain_simply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        chat_id: activeChatId,
+                        message_index: index
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(`Error: ${data.error}`);
+                        button.disabled = false;
+                        if (span) span.textContent = 'Explain Simply';
+                    } else {
+                        const eliSection = contentDiv.querySelector('.eli10-section');
+                        const eliBody = contentDiv.querySelector('.eli10-body');
+                        const actionsDiv = contentDiv.querySelector('.message-actions');
+                        
+                        if (eliBody && eliSection) {
+                            eliBody.innerHTML = DOMPurify.sanitize(marked.parse(data.explanation));
+                            eliSection.style.display = 'block';
+                        }
+                        if (actionsDiv) {
+                            actionsDiv.style.display = 'none';
+                        }
+                        
+                        // Force chat history refresh
+                        fetch('/chats')
+                            .then(res => res.json())
+                            .then(chatsData => {
+                                chats = chatsData;
+                            });
+                    }
+                })
+                .catch(err => {
+                    alert(`Failed to simplify: ${err.message}`);
+                    button.disabled = false;
+                    if (span) span.textContent = 'Explain Simply';
+                });
+            }
+
+
+
+            // Clear database
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all indexed documents? This will delete the vector index and all chat history.')) {
+                    clearBtn.disabled = true;
+                    fetch('/clear', { method: 'POST' })
+                        .then(res => res.json())
+                        .then(data => {
+                            updateDocumentList([]);
+                            chatMessages.innerHTML = '';
+                            chats = {};
+                            activeChatId = null;
+                            createNewChatSession();
+                            appendSystemMessage("Vector database and all conversations cleared.");
+                        })
+                        .catch(err => {
+                            alert('Failed to clear database.');
+                            clearBtn.disabled = false;
+                        });
+                }
+            });
+
+            // Compare PDFs Modal Controls
+            const compareDocsBtn = document.getElementById('compare-docs-btn');
+            const compareModal = document.getElementById('compare-modal');
+            const closeCompareBtn = document.getElementById('close-compare-btn');
+            const runCompareBtn = document.getElementById('run-compare-btn');
+            const comparePdf1Select = document.getElementById('compare-pdf-1');
+            const comparePdf2Select = document.getElementById('compare-pdf-2');
+
+            if (compareDocsBtn) {
+                compareDocsBtn.addEventListener('click', () => {
+                    const fileItems = document.querySelectorAll('.document-item');
+                    if (fileItems.length < 2) {
+                        alert('Please upload at least 2 PDF documents to compare.');
+                        return;
+                    }
+
+                    comparePdf1Select.innerHTML = '';
+                    comparePdf2Select.innerHTML = '';
+
+                    fileItems.forEach((item, idx) => {
+                        const filename = item.dataset.filename;
+                        const opt1 = document.createElement('option');
+                        opt1.value = filename;
+                        opt1.textContent = filename;
+                        
+                        const opt2 = document.createElement('option');
+                        opt2.value = filename;
+                        opt2.textContent = filename;
+
+                        if (idx === 0) {
+                            opt1.selected = true;
+                        } else if (idx === 1) {
+                            opt2.selected = true;
+                        }
+
+                        comparePdf1Select.appendChild(opt1);
+                        comparePdf2Select.appendChild(opt2);
+                    });
+
+                    compareModal.style.display = 'flex';
+                });
+            }
+
+            if (closeCompareBtn) {
+                closeCompareBtn.addEventListener('click', () => {
+                    compareModal.style.display = 'none';
+                });
+            }
+
+            window.addEventListener('click', (e) => {
+                if (e.target === compareModal) {
+                    compareModal.style.display = 'none';
+                }
+            });
+
+            if (runCompareBtn) {
+                runCompareBtn.addEventListener('click', () => {
+                    const file1 = comparePdf1Select.value;
+                    const file2 = comparePdf2Select.value;
+
+                    if (!file1 || !file2) {
+                        alert('Please select two documents to compare.');
+                        return;
+                    }
+
+                    if (file1 === file2) {
+                        alert('Please select two different documents to compare.');
+                        return;
+                    }
+
+                    compareModal.style.display = 'none';
+                    appendChatMessage('user', `Compare "${file1}" and "${file2}"`);
+
+                    userInput.disabled = true;
+                    sendBtn.disabled = true;
+                    if (compareDocsBtn) compareDocsBtn.disabled = true;
+
+                    const loadingMsg = appendSystemMessage(`⏳ Comparing "${file1}" and "${file2}"... This may take a moment.`);
+
+                    fetch('/compare_pdfs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            file1: file1,
+                            file2: file2,
+                            chat_id: activeChatId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (loadingMsg) loadingMsg.remove();
+
+                        if (data.error) {
+                            appendSystemMessage(`❌ Error: ${data.error}`);
+                        } else {
+                            appendChatMessage('ai', `### Document Comparison: ${data.file1} vs ${data.file2}`, [], null, chats[activeChatId].messages.length, null, null, null, data.comparison);
+                            
+                            fetch('/chats')
+                                .then(res => res.json())
+                                .then(chatsData => {
+                                    chats = chatsData;
+                                });
+                        }
+                    })
+                    .catch(err => {
+                        if (loadingMsg) loadingMsg.remove();
+                        appendSystemMessage(`❌ Comparison failed: ${err.message}`);
+                    })
+                    .finally(() => {
+                        userInput.disabled = false;
+                        sendBtn.disabled = false;
+                        if (compareDocsBtn) compareDocsBtn.disabled = false;
+                        userInput.focus();
+                    });
+                });
+            }
+ 
+            function appendSystemMessage(text) {
+                if (welcomeScreen.parentNode) {
+                    welcomeScreen.remove();
+                }
+                const msg = document.createElement('div');
+                msg.className = 'message system-message';
+                msg.innerHTML = `<div class="message-content">${text}</div>`;
+                chatMessages.appendChild(msg);
+                scrollToBottom();
+            }
+
+            function renderInterviewList(questions, startIdx) {
+                if (questions.length === 0) {
+                    return '<p class="empty-questions">No questions generated in this category.</p>';
+                }
+                return questions.map((q, idx) => `
+                    <div class="interview-accordion-item">
+                        <div class="interview-accordion-header">
+                            <span class="interview-q-num">Q${startIdx + idx + 1}</span>
+                            <span class="interview-q-text">${escapeHtml(q.question)}</span>
+                            <span class="interview-badge topic">${escapeHtml(q.topic)}</span>
+                            <svg class="interview-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="interview-accordion-body" style="display: none;">
+                            <div class="interview-answer-section">
+                                <span class="interview-answer-label">Expected Answer:</span>
+                                <div class="interview-answer-value">${DOMPurify.sanitize(marked.parse(q.answer))}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function appendChatMessage(sender, text, sources = [], quiz = null, msgIndex = null, eli10 = null, translations = null, pageSearch = null, comparison = null, notes = null, interviewPrep = null, flashcards = null) {
+                if (welcomeScreen.parentNode) {
+                    welcomeScreen.remove();
+                }
+
+                const msg = document.createElement('div');
+                msg.className = `message ${sender}-message ${quiz || pageSearch || comparison || notes || interviewPrep || flashcards ? 'quiz-message' : ''}`;
+                
+                let sourcesHtml = '';
+                if (sources && sources.length > 0) {
+                    sourcesHtml = `
+                        <div class="message-sources">
+                            <div class="sources-toggle">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                <span>Sources (${sources.length})</span>
+                            </div>
+                            <div class="sources-list" style="display: none;">
+                                ${sources.map(src => `
+                                    <div class="source-item" data-pdf="/uploads/${encodeURIComponent(src.source)}" data-page="${src.page}" data-confidence="${src.confidence}" data-chunk="${src.chunk_index}">
+                                        <div class="source-meta">
+                                            <strong>${src.source}</strong> (Page ${src.page})
+                                        </div>
+                                        <div class="source-snippet">"${src.snippet.substring(0, 150)}..."</div>
+                                        <div class="source-footer">
+                                            <span class="source-badge">Chunk ${src.chunk_index}</span>
+                                            <span class="source-badge confidence">Confidence: ${src.confidence}%</span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let formattedText = '';
+                let quizHtml = '';
+                let pageSearchHtml = '';
+                let comparisonHtml = '';
+                let notesHtml = '';
+
+                if (notes) {
+                    notesHtml = `
+                        <div class="notes-card">
+                            <div class="notes-card-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="notes-card-icon">
+                                    <path d="M12 20h9"/>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                                <h3>Study Notes: ${escapeHtml(text.replace('### Notes Generated: ', ''))}</h3>
+                            </div>
+                            
+                            <div class="notes-accordion">
+                                <div class="notes-accordion-item">
+                                    <div class="notes-accordion-header">
+                                        <span class="notes-num">1</span>
+                                        <span class="notes-title">Short Notes</span>
+                                        <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                    <div class="notes-accordion-body" style="display: none;">
+                                        ${DOMPurify.sanitize(marked.parse(notes.short_notes))}
+                                    </div>
+                                </div>
+                                
+                                <div class="notes-accordion-item">
+                                    <div class="notes-accordion-header">
+                                        <span class="notes-num">2</span>
+                                        <span class="notes-title">Bullet Point Notes</span>
+                                        <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                    <div class="notes-accordion-body" style="display: none;">
+                                        ${DOMPurify.sanitize(marked.parse(notes.bullet_points))}
+                                    </div>
+                                </div>
+
+                                <div class="notes-accordion-item">
+                                    <div class="notes-accordion-header">
+                                        <span class="notes-num">3</span>
+                                        <span class="notes-title">Important Concepts</span>
+                                        <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                    <div class="notes-accordion-body" style="display: none;">
+                                        ${DOMPurify.sanitize(marked.parse(notes.concepts))}
+                                    </div>
+                                </div>
+
+                                <div class="notes-accordion-item">
+                                    <div class="notes-accordion-header">
+                                        <span class="notes-num">4</span>
+                                        <span class="notes-title">Revision Notes</span>
+                                        <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                    <div class="notes-accordion-body" style="display: none;">
+                                        ${DOMPurify.sanitize(marked.parse(notes.revision))}
+                                    </div>
+                                </div>
+
+                                <div class="notes-accordion-item">
+                                    <div class="notes-accordion-header">
+                                        <span class="notes-num">5</span>
+                                        <span class="notes-title">Exam Preparation Notes</span>
+                                        <svg class="notes-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                    <div class="notes-accordion-body" style="display: none;">
+                                        ${DOMPurify.sanitize(marked.parse(notes.exam_prep))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="notes-card-footer">
+                                <button class="btn-action btn-download-notes">
+                                    Download Notes (PDF)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else if (comparison) {
+                    const doc1Name = text.replace('### Document Comparison: ', '').split(' vs ')[0];
+                    const doc2Name = text.replace('### Document Comparison: ', '').split(' vs ')[1];
+                    comparisonHtml = `
+                        <div class="comparison-card">
+                            <div class="comparison-card-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="comparison-card-icon">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                                </svg>
+                                <h3>Document Comparison</h3>
+                            </div>
+                            
+                            <div class="comparison-table-wrapper">
+                                <table class="comparison-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>${escapeHtml(doc1Name)}</th>
+                                            <th>${escapeHtml(doc2Name)}</th>
+                                            <th>Analysis</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="cat-col">Purpose</td>
+                                            <td>${escapeHtml(comparison.purpose.doc1)}</td>
+                                            <td>${escapeHtml(comparison.purpose.doc2)}</td>
+                                            <td class="analysis-cell">${escapeHtml(comparison.purpose.comparison)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="cat-col">Main Topics</td>
+                                            <td>${escapeHtml(comparison.topics.doc1)}</td>
+                                            <td>${escapeHtml(comparison.topics.doc2)}</td>
+                                            <td class="analysis-cell">${escapeHtml(comparison.topics.comparison)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="cat-col">Key Concepts</td>
+                                            <td>${escapeHtml(comparison.concepts.doc1)}</td>
+                                            <td>${escapeHtml(comparison.concepts.doc2)}</td>
+                                            <td class="analysis-cell">${escapeHtml(comparison.concepts.comparison)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="comparison-details">
+                                <div class="comp-detail-section">
+                                    <h4>Differences</h4>
+                                    <p>${DOMPurify.sanitize(marked.parse(comparison.differences))}</p>
+                                </div>
+                                <div class="comp-detail-section">
+                                    <h4>Similarities</h4>
+                                    <p>${DOMPurify.sanitize(marked.parse(comparison.similarities))}</p>
+                                </div>
+                                <div class="comp-detail-section conclusion">
+                                    <h4>Final Conclusion</h4>
+                                    <p>${DOMPurify.sanitize(marked.parse(comparison.conclusion))}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (pageSearch) {
+                    pageSearchHtml = `
+                        <div class="page-search-card">
+                            <div class="page-search-card-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="page-search-card-icon">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                                <h3>Page Details: Page ${pageSearch.page}</h3>
+                            </div>
+                            
+                            ${pageSearch.answer ? `
+                                <div class="page-search-q-section">
+                                    <div class="page-search-q-title">Q: ${escapeHtml(pageSearch.question)}</div>
+                                    <div class="page-search-q-answer">${DOMPurify.sanitize(marked.parse(pageSearch.answer))}</div>
+                                </div>
+                            ` : ''}
+
+                            <div class="page-search-section">
+                                <div class="page-search-section-title">🤖 Generated Summary</div>
+                                <div class="page-search-summary-body">
+                                    ${DOMPurify.sanitize(marked.parse(pageSearch.summary))}
+                                </div>
+                            </div>
+
+                            <div class="page-search-section">
+                                <div class="page-search-section-title">📄 Extracted Text</div>
+                                <div class="page-search-text-container">
+                                    <pre class="page-search-raw-text">${escapeHtml(pageSearch.extracted_text)}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                const quizArray = Array.isArray(quiz) ? quiz : (quiz ? (quiz.quiz || quiz.questions || []) : []);
+                if (quizArray && quizArray.length > 0) {
+                    quizHtml = `
+                        <div class="quiz-card">
+                            <div class="quiz-card-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="quiz-card-icon">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <h3>AI-Generated Quiz: ${escapeHtml(text.replace('### Quiz Generated: ', ''))}</h3>
+                            </div>
+                            <div class="quiz-accordion">
+                                ${quizArray.map((q, idx) => {
+                                    const qQuest = q.question || 'No question text';
+                                    const qDiff = q.difficulty || 'Medium';
+                                    const qOpts = q.options || [];
+                                    const qAns = q.answer || '';
+                                    return `
+                                        <div class="quiz-accordion-item">
+                                            <div class="quiz-accordion-header">
+                                                <span class="quiz-q-num">Q${idx + 1}</span>
+                                                <span class="quiz-q-text">${escapeHtml(qQuest)}</span>
+                                                <span class="quiz-badge ${(qDiff).toLowerCase()}">${escapeHtml(qDiff)}</span>
+                                                <svg class="quiz-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </div>
+                                            <div class="quiz-accordion-body" style="display: none;">
+                                                <ul class="quiz-options">
+                                                    ${qOpts.map(opt => `
+                                                        <li class="quiz-option-item">${escapeHtml(opt)}</li>
+                                                    `).join('')}
+                                                </ul>
+                                                <div class="quiz-answer-section">
+                                                    <span class="quiz-answer-label">Correct Answer:</span>
+                                                    <span class="quiz-answer-value">${escapeHtml(qAns)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            <div class="quiz-card-footer">
+                                <button class="btn-action btn-download-quiz">
+                                    Download Quiz (PDF)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                } else if (sender === 'ai') {
+                    formattedText = DOMPurify.sanitize(marked.parse(text));
+                } else {
+                    formattedText = `<p>${escapeHtml(text).replace(/\n/g, '<br>')}</p>`;
+                }
+                let interviewHtml = '';
+                if (interviewPrep) {
+                    const interviewQuestions = Array.isArray(interviewPrep) ? interviewPrep : (interviewPrep.questions || []);
+                    const basicQ = interviewQuestions.filter(q => {
+                        const d = (q.difficulty || '').toLowerCase();
+                        return d === 'basic' || d === 'easy';
+                    });
+                    const interQ = interviewQuestions.filter(q => {
+                        const d = (q.difficulty || '').toLowerCase();
+                        return d === 'intermediate' || d === 'medium';
+                    });
+                    const advQ = interviewQuestions.filter(q => {
+                        const d = (q.difficulty || '').toLowerCase();
+                        return d === 'advanced' || d === 'hard';
+                    });
+
+                    interviewHtml = `
+                        <div class="interview-card">
+                            <div class="interview-card-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="interview-card-icon">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                </svg>
+                                <h3>Interview Preparation: ${escapeHtml(text.replace('### Interview Prep Generated: ', ''))}</h3>
+                            </div>
+                            
+                            <div class="interview-tabs">
+                                <button class="interview-tab-btn active" data-tab="basic">Basic (${basicQ.length})</button>
+                                <button class="interview-tab-btn" data-tab="intermediate">Intermediate (${interQ.length})</button>
+                                <button class="interview-tab-btn" data-tab="advanced">Advanced (${advQ.length})</button>
+                            </div>
+
+                            <div class="interview-tab-content active" id="tab-basic-${msgIndex}">
+                                <div class="interview-accordion">
+                                    ${renderInterviewList(basicQ, 0)}
+                                </div>
+                            </div>
+
+                            <div class="interview-tab-content" id="tab-intermediate-${msgIndex}" style="display: none;">
+                                <div class="interview-accordion">
+                                    ${renderInterviewList(interQ, basicQ.length)}
+                                </div>
+                            </div>
+
+                            <div class="interview-tab-content" id="tab-advanced-${msgIndex}" style="display: none;">
+                                <div class="interview-accordion">
+                                    ${renderInterviewList(advQ, basicQ.length + interQ.length)}
+                                </div>
+                            </div>
+
+                            <div class="interview-card-footer">
+                                <button class="btn-action btn-download-interview">
+                                    Download Interview Prep (PDF)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let flashcardsHtml = '';
+                if (flashcards && flashcards.flashcards) {
+                    const cardsDataJson = JSON.stringify(flashcards.flashcards).replace(/"/g, '&quot;');
+                    flashcardsHtml = `
+                        <div class="flashcards-card" data-cards="${cardsDataJson}">
+                            <div class="flashcards-card-header">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="flashcards-card-icon">
+                                    <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                                    <polyline points="2 17 12 22 22 17"/>
+                                    <polyline points="2 12 12 17 22 12"/>
+                                </svg>
+                                <h3>Flashcards: ${escapeHtml(text.replace('### Flashcards Generated: ', ''))}</h3>
+                            </div>
+                            
+                            <div class="flashcard-scene">
+                                <div class="flashcard-item">
+                                    <div class="flashcard-face flashcard-front">
+                                        <div class="flashcard-label">FRONT (QUESTION)</div>
+                                        <div class="flashcard-text front-text"></div>
+                                    </div>
+                                    <div class="flashcard-face flashcard-back">
+                                        <div class="flashcard-label">BACK (ANSWER)</div>
+                                        <div class="flashcard-text back-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flashcards-controls">
+                                <button class="btn-ctrl btn-prev-card" title="Previous Card">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="19" y1="12" x2="5" y2="12"/>
+                                        <polyline points="12 19 5 12 12 5"/>
+                                    </svg>
+                                </button>
+                                <span class="flashcard-progress">Card 1 of 10</span>
+                                <button class="btn-ctrl btn-next-card" title="Next Card">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                        <polyline points="12 5 19 12 12 19"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-ctrl btn-shuffle-cards" title="Shuffle Cards">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="16 3 21 3 21 8"/>
+                                        <line x1="4" y1="20" x2="21" y2="3"/>
+                                        <polyline points="21 16 21 21 16 21"/>
+                                        <line x1="15" y1="15" x2="21" y2="21"/>
+                                        <line x1="4" y1="4" x2="9" y2="9"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="flashcards-card-footer">
+                                <button class="btn-action btn-download-flashcards">
+                                    Download Flashcards (PDF)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                msg.innerHTML = `
+                    <div class="message-content ${quizHtml || pageSearch || comparison || notes || interviewPrep || flashcards ? 'summary-card' : ''}">
+                        ${flashcards ? flashcardsHtml : (interviewPrep ? interviewHtml : (notes ? notesHtml : (comparison ? comparisonHtml : (pageSearch ? pageSearchHtml : (quizHtml ? quizHtml : `<div class="message-text">${formattedText}</div>`)))))}
+                        ${sourcesHtml}
+                    </div>
+                `;
+
+                chatMessages.appendChild(msg);
+
+                // Bind flashcards interactivity
+                if (flashcards && flashcards.flashcards) {
+                    const container = msg.querySelector('.flashcards-card');
+                    const cardInner = container.querySelector('.flashcard-item');
+                    const frontText = container.querySelector('.front-text');
+                    const backText = container.querySelector('.back-text');
+                    const progressSpan = container.querySelector('.flashcard-progress');
+                    const prevBtn = container.querySelector('.btn-prev-card');
+                    const nextBtn = container.querySelector('.btn-next-card');
+                    const shuffleBtn = container.querySelector('.btn-shuffle-cards');
+                    const downloadBtn = container.querySelector('.btn-download-flashcards');
+
+                    let activeCards = [...flashcards.flashcards];
+                    let currentIndex = 0;
+
+                    function updateCardDisplay() {
+                        cardInner.classList.remove('flipped');
+                        if (activeCards.length === 0) return;
+                        const currentCard = activeCards[currentIndex];
+                        frontText.textContent = currentCard.front;
+                        backText.textContent = currentCard.back;
+                        progressSpan.textContent = `Card ${currentIndex + 1} of ${activeCards.length}`;
+                    }
+
+                    cardInner.addEventListener('click', () => {
+                        cardInner.classList.toggle('flipped');
+                    });
+
+                    prevBtn.addEventListener('click', () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            updateCardDisplay();
+                        }
+                    });
+
+                    nextBtn.addEventListener('click', () => {
+                        if (currentIndex < activeCards.length - 1) {
+                            currentIndex++;
+                            updateCardDisplay();
+                        }
+                    });
+
+                    shuffleBtn.addEventListener('click', () => {
+                        for (let i = activeCards.length - 1; i > 0; i--) {
+                            const j = Math.floor(Math.random() * (i + 1));
+                            [activeCards[i], activeCards[j]] = [activeCards[j], activeCards[i]];
+                        }
+                        currentIndex = 0;
+                        updateCardDisplay();
+                    });
+
+                    if (downloadBtn) {
+                        downloadBtn.addEventListener('click', () => {
+                            let printHtml = '';
+                            flashcards.flashcards.forEach((card, idx) => {
+                                printHtml += `
+                                    <div class="flashcard-print-item">
+                                        <div class="card-num">Flashcard ${idx + 1}</div>
+                                        <div class="print-front"><strong>Front (Question):</strong> ${escapeHtml(card.front)}</div>
+                                        <div class="print-back"><strong>Back (Answer):</strong> ${escapeHtml(card.back)}</div>
+                                    </div>
+                                `;
+                            });
+                            printFlashcards(text.replace('### Flashcards Generated: ', ''), printHtml);
+                        });
+                    }
+
+                    updateCardDisplay();
+                }
+
+                // Bind tab switching, accordion headers, and download for interview prep
+                if (interviewPrep) {
+                    const tabBtns = msg.querySelectorAll('.interview-tab-btn');
+                    const tabContents = msg.querySelectorAll('.interview-tab-content');
+                    tabBtns.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            tabBtns.forEach(b => b.classList.remove('active'));
+                            tabContents.forEach(c => c.style.display = 'none');
+                            
+                            btn.classList.add('active');
+                            const activeTab = btn.dataset.tab;
+                            msg.querySelector(`#tab-${activeTab}-${msgIndex}`).style.display = 'block';
+                        });
+                    });
+
+                    msg.querySelectorAll('.interview-accordion-header').forEach(header => {
+                        header.addEventListener('click', () => {
+                            const body = header.nextElementSibling;
+                            const isHidden = body.style.display === 'none';
+                            body.style.display = isHidden ? 'block' : 'none';
+                            header.classList.toggle('active', isHidden);
+                        });
+                    });
+
+                    const downloadInterviewBtn = msg.querySelector('.btn-download-interview');
+                    if (downloadInterviewBtn) {
+                        downloadInterviewBtn.addEventListener('click', () => {
+                            let printHtml = '';
+                            const difficulties = ['Basic', 'Intermediate', 'Advanced'];
+                            difficulties.forEach(diff => {
+                                const qList = interviewPrep.questions.filter(q => q.difficulty === diff);
+                                if (qList.length > 0) {
+                                    printHtml += `<h2 class="diff-header">${diff} Questions</h2>`;
+                                    qList.forEach((q, idx) => {
+                                        printHtml += `
+                                            <div class="interview-print-item">
+                                                <div class="question">Q. ${escapeHtml(q.question)}</div>
+                                                <div class="meta">Topic: ${escapeHtml(q.topic)} | Difficulty: ${escapeHtml(q.difficulty)}</div>
+                                                <div class="answer"><strong>Expected Answer:</strong> ${DOMPurify.sanitize(marked.parse(q.answer))}</div>
+                                            </div>
+                                        `;
+                                    });
+                                }
+                            });
+                            printInterview(text.replace('### Interview Prep Generated: ', ''), printHtml);
+                        });
+                    }
+                }
+
+                // Bind accordion headers for notes
+                if (notes) {
+                    msg.querySelectorAll('.notes-accordion-header').forEach(header => {
+                        header.addEventListener('click', () => {
+                            const body = header.nextElementSibling;
+                            const isHidden = body.style.display === 'none';
+                            body.style.display = isHidden ? 'block' : 'none';
+                            header.classList.toggle('active', isHidden);
+                        });
+                    });
+
+                    // Bind download notes button
+                    const downloadNotesBtn = msg.querySelector('.btn-download-notes');
+                    if (downloadNotesBtn) {
+                        downloadNotesBtn.addEventListener('click', () => {
+                            let printHtml = `
+                                <div class="note-section">
+                                    <h2>1. Short Notes</h2>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.short_notes))}</div>
+                                </div>
+                                <div class="note-section">
+                                    <h2>2. Bullet Point Notes</h2>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.bullet_points))}</div>
+                                </div>
+                                <div class="note-section">
+                                    <h2>3. Important Concepts</h2>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.concepts))}</div>
+                                </div>
+                                <div class="note-section">
+                                    <h2>4. Revision Notes</h2>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.revision))}</div>
+                                </div>
+                                <div class="note-section">
+                                    <h2>5. Exam Preparation Notes</h2>
+                                    <div>${DOMPurify.sanitize(marked.parse(notes.exam_prep))}</div>
+                                </div>
+                            `;
+                            printNotes(text.replace('### Notes Generated: ', ''), printHtml);
+                        });
+                    }
+                }
+
+                // Bind accordion headers
+                if (quiz) {
+                    msg.querySelectorAll('.quiz-accordion-header').forEach(header => {
+                        header.addEventListener('click', () => {
+                            const body = header.nextElementSibling;
+                            const isHidden = body.style.display === 'none';
+                            body.style.display = isHidden ? 'block' : 'none';
+                            header.classList.toggle('active', isHidden);
+                        });
+                    });
+
+                    // Bind download button
+                    const downloadQuizBtn = msg.querySelector('.btn-download-quiz');
+                    if (downloadQuizBtn) {
+                        downloadQuizBtn.addEventListener('click', () => {
+                            let printHtml = '';
+                            quiz.forEach((q, idx) => {
+                                printHtml += `
+                                    <div class="quiz-item">
+                                        <div class="question">Q${idx + 1}. ${escapeHtml(q.question)}</div>
+                                        <div class="difficulty">Difficulty: ${q.difficulty}</div>
+                                        <ul class="options">
+                                            ${q.options.map(opt => `<li>${escapeHtml(opt)}</li>`).join('')}
+                                        </ul>
+                                        <div class="correct-answer">Correct Answer: ${escapeHtml(q.answer)}</div>
+                                    </div>
+                                `;
+                            });
+                            printQuiz(text.replace('### Quiz Generated: ', ''), printHtml);
+                        });
+                    }
+                }
+                
+                // Bind sources toggle event
+                const toggle = msg.querySelector('.sources-toggle');
+                if (toggle) {
+                    toggle.addEventListener('click', () => {
+                        const list = msg.querySelector('.sources-list');
+                        const isHidden = list.style.display === 'none';
+                        list.style.display = isHidden ? 'block' : 'none';
+                        toggle.classList.toggle('active', isHidden);
+                    });
+                }
+
+                // Bind source item click to PDF Viewer
+                msg.querySelectorAll('.source-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const pdfUrl = item.dataset.pdf;
+                        const page = item.dataset.page;
+                        const snippet = item.querySelector('.source-snippet').textContent;
+                        const confidence = item.dataset.confidence;
+                        const chunk = item.dataset.chunk;
+
+                        openPdfViewer(pdfUrl, page, snippet, confidence, chunk);
+                    });
+                });
+                
+                if (sender === 'ai') {
+                    bindAiMessageEvents(msg, msgIndex, text, eli10, translations);
+                }
+                
+                scrollToBottom();
+            }
+
+            function openPdfViewer(pdfUrl, page, snippet, confidence, chunk) {
+                pdfIframe.src = `${pdfUrl}#page=${page}`;
+                pdfSnippetText.textContent = snippet;
+                pdfSnippetPage.textContent = `Page ${page} (Chunk ${chunk})`;
+                pdfSnippetConfidence.textContent = `${confidence}% Match`;
+                
+                pdfViewerPanel.style.display = 'flex';
+                document.body.classList.add('pdf-viewer-open');
+            }
+
+            closePdfBtn.addEventListener('click', () => {
+                pdfViewerPanel.style.display = 'none';
+                pdfIframe.src = '';
+                document.body.classList.remove('pdf-viewer-open');
+            });
+
+            function appendStreamingAiMessage() {
+                if (welcomeScreen.parentNode) {
+                    welcomeScreen.remove();
+                }
+
+                const msg = document.createElement('div');
+                msg.className = 'message ai-message';
+                
+                msg.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-status-steps">
+                            <span>⏳ Initializing...</span>
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(msg);
+                scrollToBottom();
+                return msg;
+            }
+
+            function appendSourcesToMessage(msgElement, sources) {
+                const contentDiv = msgElement.querySelector('.message-content');
+                
+                const sourcesHtml = `
+                    <div class="message-sources">
+                        <div class="sources-toggle">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            <span>Sources (${sources.length})</span>
+                        </div>
+                        <div class="sources-list" style="display: none;">
+                            ${sources.map(src => `
+                                <div class="source-item" data-pdf="/uploads/${encodeURIComponent(src.source)}" data-page="${src.page}" data-confidence="${src.confidence}" data-chunk="${src.chunk_index}">
+                                    <div class="source-meta">
+                                        <strong>${src.source}</strong> (Page ${src.page})
+                                    </div>
+                                    <div class="source-snippet">"${src.snippet.substring(0, 150)}..."</div>
+                                    <div class="source-footer">
+                                        <span class="source-badge">Chunk ${src.chunk_index}</span>
+                                        <span class="source-badge confidence">Confidence: ${src.confidence}%</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                contentDiv.insertAdjacentHTML('beforeend', sourcesHtml);
+                
+                // Bind toggle
+                const toggle = msgElement.querySelector('.sources-toggle');
+                toggle.addEventListener('click', () => {
+                    const list = msgElement.querySelector('.sources-list');
+                    const isHidden = list.style.display === 'none';
+                    list.style.display = isHidden ? 'block' : 'none';
+                    toggle.classList.toggle('active', isHidden);
+                });
+
+                // Bind click to PDF Viewer
+                msgElement.querySelectorAll('.source-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const pdfUrl = item.dataset.pdf;
+                        const page = item.dataset.page;
+                        const snippet = item.querySelector('.source-snippet').textContent;
+                        const confidence = item.dataset.confidence;
+                        const chunk = item.dataset.chunk;
+
+                        openPdfViewer(pdfUrl, page, snippet, confidence, chunk);
+                    });
+                });
+                
+                scrollToBottom();
+            }
+
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+
+            // Speech Recognition (Voice Input)
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                    userInput.placeholder = "Listening...";
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                    userInput.placeholder = "Ask something about your uploaded PDFs...";
+                };
+
+                recognition.onresult = (event) => {
+                    const resultText = event.results[0][0].transcript;
+                    userInput.value = resultText;
+                    userInput.focus();
+                };
+
+                recognition.onerror = () => {
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                };
+
+                voiceBtn.addEventListener('click', () => {
+                    if (isRecording) {
+                        recognition.stop();
+                    } else {
+                        recognition.start();
+                    }
+                });
+            } else {
+                voiceBtn.style.display = 'none'; // Speech recognition not supported
+            }
+
+            // Update title of active chat in sidebar
+            function updateActiveChatTitle(title) {
+                if (chats[activeChatId]) {
+                    chats[activeChatId].title = title;
+                    renderChatSessions();
+                }
+            }
+
+            // Handle Chat Submission (Streaming)
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = userInput.value.trim();
+                const pageVal = document.getElementById('page-input').value.trim();
+                
+                if (!text || !activeChatId) return;
+
+                if (pageVal) {
+                    const pageNum = parseInt(pageVal, 10);
+                    if (isNaN(pageNum) || pageNum < 1) {
+                        alert('Please enter a valid page number.');
+                        return;
+                    }
+
+                    userInput.value = '';
+                    document.getElementById('page-input').value = '';
+
+                    appendChatMessage('user', `[Page ${pageNum}] ${text}`);
+
+                    userInput.disabled = true;
+                    sendBtn.disabled = true;
+                    document.getElementById('page-input').disabled = true;
+
+                    const loadingMsg = appendSystemMessage(`⏳ Retrieving Page ${pageNum} and generating summary...`);
+
+                    fetch('/page_search', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            page_num: pageNum,
+                            question: text,
+                            chat_id: activeChatId
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (loadingMsg) loadingMsg.remove();
+
+                        if (data.error) {
+                            appendSystemMessage(`❌ Error: ${data.error}`);
+                        } else {
+                            appendChatMessage('ai', `### Page Search: Page ${data.page}`, [], null, chats[activeChatId].messages.length, null, null, data.page_search);
+                            
+                            // Refresh history
+                            fetch('/chats')
+                                .then(res => res.json())
+                                .then(chatsData => {
+                                    chats = chatsData;
+                                });
+                        }
+                    })
+                    .catch(err => {
+                        if (loadingMsg) loadingMsg.remove();
+                        appendSystemMessage(`❌ Failed: ${err.message}`);
+                    })
+                    .finally(() => {
+                        userInput.disabled = false;
+                        sendBtn.disabled = false;
+                        document.getElementById('page-input').disabled = false;
+                        userInput.focus();
+                    });
+
+                    return;
+                }
+
+                // Append user message
+                appendChatMessage('user', text);
+                userInput.value = '';
+
+                // Disable input during request
+                userInput.disabled = true;
+                sendBtn.disabled = true;
+
+                // Create streaming AI message bubble
+                const aiMsgBubble = appendStreamingAiMessage();
+                const contentDiv = aiMsgBubble.querySelector('.message-content');
+                const statusDiv = aiMsgBubble.querySelector('.message-status-steps');
+
+                try {
+                    const response = await fetch('/chat/stream', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text, chat_id: activeChatId })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to get streaming response');
+                    }
+
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let done = false;
+                    let aiText = '';
+                    let aiSources = [];
+                    let buffer = '';
+
+                    while (!done) {
+                        const { value, done: readerDone } = await reader.read();
+                        done = readerDone;
+                        if (value) {
+                            buffer += decoder.decode(value, { stream: true });
+                            
+                            // Split buffer into lines
+                            const lines = buffer.split('\n\n');
+                            buffer = lines.pop(); // keep last incomplete line in buffer
+
+                            for (const line of lines) {
+                                if (!line.trim()) continue;
+
+                                const eventMatch = line.match(/^event:\s*(.+)$/m);
+                                const dataMatch = line.match(/^data:\s*(.+)$/m);
+
+                                if (eventMatch && dataMatch) {
+                                    const event = eventMatch[1].trim();
+                                    const rawData = dataMatch[1].trim();
+                                    const data = JSON.parse(rawData);
+
+                                    if (event === 'status') {
+                                        let icon = '⏳';
+                                        if (data.includes('Searching')) icon = '🔍';
+                                        else if (data.includes('Analyzing')) icon = '🧠';
+                                        else if (data.includes('Generating')) icon = '✍️';
+                                        statusDiv.innerHTML = `<span>${icon} ${escapeHtml(data)}</span>`;
+                                    } else if (event === 'token') {
+                                        statusDiv.style.display = 'none';
+                                        aiText += data;
+                                        contentDiv.innerHTML = DOMPurify.sanitize(marked.parse(aiText));
+                                    } else if (event === 'sources') {
+                                        aiSources = data;
+                                    } else if (event === 'done') {
+                                        // Finalize chat session
+                                        if (aiSources && aiSources.length > 0) {
+                                            appendSourcesToMessage(aiMsgBubble, aiSources);
+                                        }
+                                        
+                                        // Save locally
+                                        if (!chats[activeChatId].messages) {
+                                            chats[activeChatId].messages = [];
+                                        }
+                                        chats[activeChatId].messages.push({ role: 'user', text: text });
+                                        chats[activeChatId].messages.push({ role: 'ai', text: aiText, sources: aiSources });
+
+                                        const aiIndex = chats[activeChatId].messages.length - 1;
+                                        bindAiMessageEvents(aiMsgBubble, aiIndex, aiText);
+
+                                        if (data && data.title) {
+                                            updateActiveChatTitle(data.title);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    statusDiv.style.display = 'none';
+                    contentDiv.innerHTML = `<p class="error-text">Failed to communicate with the server: ${err.message}</p>`;
+                } finally {
+                    userInput.disabled = false;
+                    sendBtn.disabled = false;
+                    userInput.focus();
+                    scrollToBottom();
+                }
+            });
+
+            // Floating "Explain Simply" button for highlights
+            const floatingBtn = document.createElement('button');
+            floatingBtn.className = 'floating-eli10-btn';
+            floatingBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a10 10 0 0 0-7.54 16.59c.22.25.29.6.18.92l-.8 2.4a.5.5 0 0 0 .63.63l2.4-.8a1 1 0 0 1 .92.18A10 10 0 1 0 12 2z"/>
+                </svg>
+                <span>Explain Simply</span>
+            `;
+            document.body.appendChild(floatingBtn);
+
+            let selectedText = '';
+
+            document.addEventListener('selectionchange', () => {
+                const selection = window.getSelection();
+                const text = selection.toString().trim();
+                
+                // Only show if selection is inside the chat messages container
+                if (text && chatMessages.contains(selection.anchorNode)) {
+                    selectedText = text;
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    
+                    floatingBtn.style.left = `${rect.left + window.scrollX + (rect.width / 2) - (floatingBtn.offsetWidth / 2)}px`;
+                    floatingBtn.style.top = `${rect.top + window.scrollY - floatingBtn.offsetHeight - 8}px`;
+                    floatingBtn.style.display = 'flex';
+                } else {
+                    floatingBtn.style.display = 'none';
+                }
+            });
+
+            // Hide floating button when clicking outside
+            document.addEventListener('mousedown', (e) => {
+                if (e.target !== floatingBtn && !floatingBtn.contains(e.target)) {
+                    setTimeout(() => {
+                        if (!window.getSelection().toString().trim()) {
+                            floatingBtn.style.display = 'none';
+                        }
+                    }, 50);
+                }
+            });
+
+            // AI Tools Click Handlers
+            const toolDocModal = document.getElementById('tool-doc-modal');
+            const toolDocSelect = document.getElementById('tool-doc-select');
+            const btnSubmitToolDoc = document.getElementById('btn-submit-tool-doc');
+            const btnCancelToolDoc = document.getElementById('btn-cancel-tool-doc');
+            const closeToolDocModal = document.getElementById('close-tool-doc-modal');
+            const toolDocPrompt = document.getElementById('tool-doc-prompt');
+
+            const toolTranslateModal = document.getElementById('tool-translate-modal');
+            const toolTranslateSelect = document.getElementById('tool-translate-select');
+            const btnSubmitToolTranslate = document.getElementById('btn-submit-tool-translate');
+            const btnCancelToolTranslate = document.getElementById('btn-cancel-tool-translate');
+            const closeToolTranslateModal = document.getElementById('close-tool-translate-modal');
+
+            let activeToolName = '';
+
+            function getUploadedFiles() {
+                const fileElements = document.querySelectorAll('.document-item .doc-name');
+                const files = [];
+                fileElements.forEach(el => {
+                    files.push(el.textContent.trim());
+                });
+                return files;
+            }
+
+            function triggerDocTool(toolName) {
+                const files = getUploadedFiles();
+                if (files.length === 0) {
+                    alert('Please upload a PDF document first.');
+                    return;
+                }
+                
+                activeToolName = toolName;
+                
+                if (files.length === 1) {
+                    runDocTool(toolName, files[0]);
+                } else {
+                    toolDocPrompt.textContent = `Select a document to ${toolName === 'summarize' ? 'summarize' : (toolName === 'notes' ? 'generate notes for' : (toolName === 'quiz' ? 'generate a quiz from' : (toolName === 'interview' ? 'generate interview questions from' : 'generate flashcards from')))}:`;
+                    toolDocSelect.innerHTML = files.map(file => `<option value="${escapeHtml(file)}">${escapeHtml(file)}</option>`).join('');
+                    toolDocModal.style.display = 'flex';
+                }
+            }
+
+            function runDocTool(toolName, filename) {
+                const docItems = document.querySelectorAll('.document-item');
+                let targetButton = null;
+                docItems.forEach(item => {
+                    if (item.querySelector('.doc-name').textContent.trim() === filename) {
+                        if (toolName === 'summarize') targetButton = item.querySelector('.btn-summarize-file');
+                        if (toolName === 'notes') targetButton = item.querySelector('.btn-notes-file');
+                        if (toolName === 'quiz') targetButton = item.querySelector('.btn-quiz-file');
+                        if (toolName === 'interview') targetButton = item.querySelector('.btn-interview-file');
+                        if (toolName === 'flashcards') targetButton = item.querySelector('.btn-flashcards-file');
+                    }
+                });
+
+                if (!targetButton) {
+                    targetButton = document.createElement('button');
+                }
+
+                if (toolName === 'summarize') summarizePDF(filename, targetButton);
+                if (toolName === 'notes') generateNotes(filename, targetButton);
+                if (toolName === 'quiz') generateQuiz(filename, targetButton);
+                if (toolName === 'interview') generateInterview(filename, targetButton);
+                if (toolName === 'flashcards') generateFlashcards(filename, targetButton);
+            }
+
+            // Navigation & View Switching Helpers
+            const homePageView = document.getElementById('home-page-view');
+            const chatView = document.getElementById('chat-view');
+
+            window.showHomeView = function() {
+                if (homePageView) homePageView.style.display = 'flex';
+                if (chatView) chatView.style.display = 'none';
+                window.setActiveTool('home');
+            };
+
+            window.showChatView = function() {
+                if (homePageView) homePageView.style.display = 'none';
+                if (chatView) chatView.style.display = 'block';
+            };
+
+            window.setActiveTool = function(toolId) {
+                document.querySelectorAll('.nav-item, .tool-card').forEach(el => {
+                    el.classList.remove('active');
+                });
+                
+                if (toolId === 'home') {
+                    const homeNav = document.getElementById('nav-home');
+                    if (homeNav) homeNav.classList.add('active');
+                } else {
+                    const toolCard = document.getElementById(`tool-${toolId}`);
+                    if (toolCard) toolCard.classList.add('active');
+                }
+            };
+
+            // Home Navigation Click
+            const navHome = document.getElementById('nav-home');
+            if (navHome) {
+                navHome.addEventListener('click', () => {
+                    window.showHomeView();
+                });
+            }
+
+            // Logo Brand Click
+            const logoBrand = document.getElementById('logo-brand');
+            if (logoBrand) {
+                logoBrand.addEventListener('click', () => {
+                    window.showHomeView();
+                });
+            }
+
+            // Chat Tool Click
+            const toolChat = document.getElementById('tool-chat');
+            if (toolChat) {
+                toolChat.addEventListener('click', () => {
+                    window.showChatView();
+                    window.setActiveTool('chat');
+                    if (Object.keys(chats).length === 0) {
+                        createNewChatSession();
+                    } else if (!activeChatId) {
+                        const firstChatId = Object.keys(chats)[0];
+                        selectChatSession(firstChatId);
+                    }
+                });
+            }
+
+            document.getElementById('tool-summarize').addEventListener('click', () => {
+                window.showChatView();
+                window.setActiveTool('summarize');
+                triggerDocTool('summarize');
+            });
+            document.getElementById('tool-notes').addEventListener('click', () => {
+                window.showChatView();
+                window.setActiveTool('notes');
+                triggerDocTool('notes');
+            });
+            document.getElementById('tool-quiz').addEventListener('click', () => {
+                window.showChatView();
+                window.setActiveTool('quiz');
+                triggerDocTool('quiz');
+            });
+            document.getElementById('tool-interview').addEventListener('click', () => {
+                window.showChatView();
+                window.setActiveTool('interview');
+                triggerDocTool('interview');
+            });
+            document.getElementById('tool-flashcards').addEventListener('click', () => {
+                window.showChatView();
+                window.setActiveTool('flashcards');
+                triggerDocTool('flashcards');
+            });
+
+            document.getElementById('tool-compare').addEventListener('click', () => {
+                const files = getUploadedFiles();
+                if (files.length < 2) {
+                    alert('Please upload at least 2 PDF documents to compare.');
+                    return;
+                }
+                window.showChatView();
+                window.setActiveTool('compare');
+                const compBtn = document.getElementById('compare-docs-btn');
+                if (compBtn) compBtn.click();
+            });
+
+            document.getElementById('tool-page-search').addEventListener('click', () => {
+                const files = getUploadedFiles();
+                if (files.length === 0) {
+                    alert('Please upload a PDF document first.');
+                    return;
+                }
+                window.showChatView();
+                window.setActiveTool('page-search');
+                const pageInput = document.getElementById('page-input');
+                if (pageInput) {
+                    pageInput.focus();
+                    pageInput.classList.add('highlight-flash');
+                    setTimeout(() => {
+                        pageInput.classList.remove('highlight-flash');
+                    }, 1500);
+                }
+            });
+
+            function getLatestAiMessageElement() {
+                const aiMessages = document.querySelectorAll('.ai-message');
+                if (aiMessages.length === 0) return null;
+                return aiMessages[aiMessages.length - 1];
+            }
+
+            document.getElementById('tool-eli10').addEventListener('click', () => {
+                const latestAiMsg = getLatestAiMessageElement();
+                if (!latestAiMsg) {
+                    appendSystemMessage('⚠️ No AI response available in the active chat to simplify.');
+                    return;
+                }
+                window.showChatView();
+                window.setActiveTool('eli10');
+                const eli10Btn = latestAiMsg.querySelector('.btn-eli10');
+                if (eli10Btn) {
+                    eli10Btn.click();
+                } else {
+                    appendSystemMessage('⚠️ This message cannot be simplified.');
+                }
+            });
+
+            document.getElementById('tool-translate').addEventListener('click', () => {
+                const latestAiMsg = getLatestAiMessageElement();
+                if (!latestAiMsg) {
+                    appendSystemMessage('⚠️ No AI response available in the active chat to translate.');
+                    return;
+                }
+                window.showChatView();
+                window.setActiveTool('translate');
+                toolTranslateModal.style.display = 'flex';
+            });
+
+            // Initial view setup
+            setTimeout(() => {
+                window.showHomeView();
+            }, 200);
+
+            function closeDocModal() {
+                toolDocModal.style.display = 'none';
+            }
+            btnCancelToolDoc.addEventListener('click', closeDocModal);
+            closeToolDocModal.addEventListener('click', closeDocModal);
+            btnSubmitToolDoc.addEventListener('click', () => {
+                const selectedFile = toolDocSelect.value;
+                if (selectedFile) {
+                    runDocTool(activeToolName, selectedFile);
+                }
+                closeDocModal();
+            });
+
+            function closeTranslateModal() {
+                toolTranslateModal.style.display = 'none';
+            }
+            btnCancelToolTranslate.addEventListener('click', closeTranslateModal);
+            closeToolTranslateModal.addEventListener('click', closeTranslateModal);
+            btnSubmitToolTranslate.addEventListener('click', () => {
+                const lang = toolTranslateSelect.value;
+                const latestAiMsg = getLatestAiMessageElement();
+                if (latestAiMsg) {
+                    const langSelect = latestAiMsg.querySelector('.translate-select');
+                    const translateBtn = latestAiMsg.querySelector('.btn-translate');
+                    if (langSelect && translateBtn) {
+                        langSelect.value = lang;
+                        translateBtn.click();
+                    }
+                }
+                closeTranslateModal();
+            });
+        });
+    </script>
+</body>
+</html>
