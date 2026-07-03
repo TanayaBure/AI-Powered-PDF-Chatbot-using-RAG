@@ -934,13 +934,16 @@
             }, false);
 
             fileInput.addEventListener('change', () => {
+                console.log("fileInput change event fired. Selected files:", fileInput.files);
                 if (fileInput.files.length > 0) {
                     handleMultipleUploads(Array.from(fileInput.files));
                 }
             });
 
             async function handleMultipleUploads(files) {
+                console.log("handleMultipleUploads started with files:", files);
                 const pdfFiles = files.filter(file => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'));
+                console.log("Filtered PDF files to process:", pdfFiles);
                 if (pdfFiles.length === 0) {
                     alert('Only PDF files are supported.');
                     return;
@@ -960,6 +963,7 @@
                     const file = pdfFiles[i];
                     const percentBase = (i / pdfFiles.length) * 100;
                     progressText.textContent = `Processing ${file.name} (${i + 1}/${pdfFiles.length})...`;
+                    console.log(`Processing file: ${file.name}, size: ${file.size} bytes`);
                     
                     const formData = new FormData();
                     formData.append('file', file);
@@ -969,7 +973,9 @@
                             const currentProgress = percentBase + (percent / pdfFiles.length);
                             progressFill.style.width = currentProgress + '%';
                             progressPercent.textContent = Math.round(currentProgress) + '%';
+                            console.log(`Uploading ${file.name}: ${Math.round(percent)}%`);
                         });
+                        console.log("Server response for upload:", response);
                         
                         updateDocumentList(response.uploaded_files);
                         if (chatStatusText) {
@@ -980,7 +986,8 @@
                         
                         appendSystemMessage(response.message);
                     } catch (error) {
-                        alert(`Failed to process ${file.name}: ${error}`);
+                        console.error(`Failed to upload ${file.name}:`, error);
+                        alert(`Failed to process ${file.name}: ${error.message || error}`);
                     }
                 }
 
@@ -988,6 +995,7 @@
                 dropZone.style.pointerEvents = 'auto';
                 dropZone.style.opacity = '1';
                 fileInput.value = '';
+                console.log("handleMultipleUploads execution finished.");
             }
 
             function uploadSingleFile(formData, onProgress) {
