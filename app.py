@@ -28,7 +28,31 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Initialize RAG Pipeline
 # We'll use "llama3.2" as the default model.
-rag_pipeline = RAGPipeline(model_name="llama3.2")
+rag_pipeline = None
+rag_pipeline_error = None
+
+try:
+    rag_pipeline = RAGPipeline(model_name="llama3.2")
+except Exception as e:
+    rag_pipeline_error = str(e)
+    print(f"Error initializing RAG pipeline: {e}")
+
+@app.before_request
+def check_pipeline_initialization():
+    global rag_pipeline_error
+    if rag_pipeline_error:
+        # If it is the index page, we can return the custom config error page
+        if request.path == '/':
+            return render_template('config_error.html', error_message=rag_pipeline_error)
+        # If it's a static file, let it pass so styles are loaded on the error page
+        elif request.path.startswith('/static'):
+            return
+        # If it's an API request, return a JSON error
+        else:
+            return jsonify({
+                "error": f"Application initialization error: {rag_pipeline_error}. "
+                         "Please configure the required environment variables (e.g. HF_TOKEN or OPENAI_API_KEY) in your Vercel Dashboard."
+            }), 500
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
