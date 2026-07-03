@@ -3,12 +3,40 @@ import shutil
 from typing import List, Optional, Dict, Any
 from langchain_community.vectorstores import FAISS
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.language_models.llms import LLM
 from chatbot.embeddings import get_embedding_model
 
 if os.environ.get("VERCEL"):
     DB_FAISS_PATH = "/tmp/faiss_index"
 else:
     DB_FAISS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "faiss_index")
+
+class MockLLM(LLM):
+    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any) -> str:
+        # Generate mock JSON for quizzes, flashcards, notes, comparisons, and interview prep
+        if "JSON" in prompt and "quiz" in prompt.lower():
+            return '[{"question": "How do you enable full AI Mode on Vercel?", "options": ["Set HF_TOKEN env var", "Set OPENAI_API_KEY env var", "Both work", "Do nothing"], "answer": "Both work", "difficulty": "Medium"}]'
+        elif "JSON" in prompt and "flashcard" in prompt.lower():
+            return '{"flashcards": [{"front": "Vercel Key Configuration", "back": "Define HF_TOKEN or OPENAI_API_KEY under Settings > Environment Variables in the Vercel dashboard."}]}'
+        elif "JSON" in prompt and "notes" in prompt.lower():
+            return '{"short_notes": "### DocuMind is in Demo Mode\\n\\nPlease configure HF_TOKEN in Vercel to activate.", "bullet_points": "- Missing credentials\\n- Configure HF_TOKEN\\n- Configure OPENAI_API_KEY", "concepts": "- **Demo Mode**: Fallback state when keys are absent.\\n- **Production Mode**: Full RAG pipeline.", "revision": "Check Vercel Environment Variables.", "exam_prep": "Q: How to fix 500 error?\\nA: By wrapping the initialization in try-except."}'
+        elif "JSON" in prompt and "compare" in prompt.lower():
+            return '{"purpose": {"doc1": "Demo", "doc2": "Demo", "comparison": "Both are running in Demo Mode."}, "topics": {"doc1": "Demo", "doc2": "Demo", "comparison": "Both are running in Demo Mode."}, "concepts": {"doc1": "Demo", "doc2": "Demo", "comparison": "Both are running in Demo Mode."}, "differences": "None", "similarities": "Both are running in Demo Mode.", "conclusion": "Please configure HF_TOKEN."}'
+        elif "JSON" in prompt and "interview" in prompt.lower():
+            return '{"questions": [{"question": "What happens if HF_TOKEN is missing?", "answer": "The application falls back to Demo Mode.", "difficulty": "Basic", "topic": "Vercel Deployment"}]}'
+            
+        return (
+            "⚠️ **DocuMind is running in Demo Mode** because no cloud AI credentials are configured in Vercel.\n\n"
+            "To get actual answers from the AI based on your PDF, please add your **`HF_TOKEN`** or **`OPENAI_API_KEY`** "
+            "to your environment variables in your **Vercel Project Dashboard** (under Settings > Environment Variables) "
+            "and redeploy the application.\n\n"
+            "Here is the text retrieved from your document matching your query:\n\n"
+            f"{prompt[:500]}..."
+        )
+
+    @property
+    def _llm_type(self) -> str:
+        return "demo"
 
 class RAGPipeline:
     def __init__(self, model_name: str = "llama3.2"):
@@ -61,16 +89,19 @@ class RAGPipeline:
                 model_kwargs={"response_format": {"type": "json_object"}}
             )
         elif self.llm_provider == "huggingface":
-            from langchain_community.llms import HuggingFaceEndpoint
             hf_token = os.environ.get("HF_TOKEN")
             if not hf_token:
-                raise ValueError("HF_TOKEN environment variable is required for HuggingFace LLM on Vercel.")
-            self.llm = HuggingFaceEndpoint(
-                repo_id="meta-llama/Llama-3.2-3B-Instruct",
-                huggingfacehub_api_token=hf_token,
-                temperature=0.1
-            )
-            self.json_llm = self.llm
+                # Fallback to MockLLM on Vercel instead of crashing
+                self.llm = MockLLM()
+                self.json_llm = MockLLM()
+            else:
+                from langchain_community.llms import HuggingFaceEndpoint
+                self.llm = HuggingFaceEndpoint(
+                    repo_id="meta-llama/Llama-3.2-3B-Instruct",
+                    huggingfacehub_api_token=hf_token,
+                    temperature=0.1
+                )
+                self.json_llm = self.llm
         else: # Default local Ollama
             from langchain_ollama import OllamaLLM
             self.llm = OllamaLLM(

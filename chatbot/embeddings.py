@@ -1,11 +1,24 @@
 import os
+from langchain_core.embeddings import Embeddings
+
+class MockEmbeddings(Embeddings):
+    """
+    Mock embeddings class to prevent crashes on Vercel when no API keys are provided.
+    Generates dummy vectors of size 384.
+    """
+    def embed_documents(self, texts):
+        return [[0.1] * 384 for _ in texts]
+        
+    def embed_query(self, text):
+        return [0.1] * 384
 
 def get_embedding_model():
     """
     Returns an embeddings model instance.
     - If OPENAI_API_KEY is present, uses OpenAIEmbeddings.
-    - If HF_TOKEN is present or running on Vercel, uses HuggingFaceHubEmbeddings (cloud API).
-    - Otherwise, falls back to local HuggingFaceEmbeddings (requires local torch/sentence-transformers).
+    - If HF_TOKEN is present, uses HuggingFaceHubEmbeddings (cloud API).
+    - If on Vercel (without keys), uses MockEmbeddings to allow demo usage.
+    - Otherwise, falls back to local HuggingFaceEmbeddings.
     """
     # 1. Check for OpenAI
     if os.environ.get("OPENAI_API_KEY"):
@@ -16,17 +29,18 @@ def get_embedding_model():
         )
     
     # 2. Check for HuggingFace Cloud
-    elif os.environ.get("HF_TOKEN") or os.environ.get("VERCEL"):
+    elif os.environ.get("HF_TOKEN"):
         from langchain_community.embeddings import HuggingFaceHubEmbeddings
-        hf_token = os.environ.get("HF_TOKEN")
-        if not hf_token:
-            raise ValueError("HF_TOKEN environment variable is required for HuggingFace embeddings on Vercel.")
         return HuggingFaceHubEmbeddings(
             repo_id="sentence-transformers/all-MiniLM-L6-v2",
-            huggingfacehub_api_token=hf_token
+            huggingfacehub_api_token=os.environ.get("HF_TOKEN")
         )
     
-    # 3. Fallback to local HuggingFace (imported dynamically to avoid importing torch/transformers on Vercel)
+    # 3. Check if running on Vercel (without keys) -> Fallback to Mock
+    elif os.environ.get("VERCEL"):
+        return MockEmbeddings()
+    
+    # 4. Fallback to local HuggingFace
     else:
         from langchain_huggingface import HuggingFaceEmbeddings
         model_name = "sentence-transformers/all-MiniLM-L6-v2"
