@@ -166,9 +166,6 @@ body {
     gap: 6px;
 }
 
-.upload-drag-area * {
-    pointer-events: none;
-}
 
 .upload-drag-area:hover, .upload-drag-area.dragover {
     border-color: var(--accent-color);
