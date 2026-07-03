@@ -22,3 +22,7 @@ chat_history.json
 .vscode/
 .idea/
 .DS_Store
+
+# Environments / API Keys
+.env
+.env.local
