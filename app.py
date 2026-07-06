@@ -4,6 +4,10 @@ import json
 import uuid
 from flask import Flask, render_template, request, jsonify, Response, send_from_directory
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 from chatbot.pdf_loader import load_and_split_pdf
 from chatbot.rag_pipeline import RAGPipeline
@@ -288,13 +292,23 @@ def generate_quiz():
         # Parse it to make sure it's valid JSON
         quiz_data = json.loads(raw_quiz)
         
+        # Normalize to list of questions
+        if isinstance(quiz_data, dict):
+            if "quiz" in quiz_data:
+                quiz_data = quiz_data["quiz"]
+            elif "questions" in quiz_data:
+                quiz_data = quiz_data["questions"]
+            elif "question" in quiz_data:
+                # Wrap single question in a list
+                quiz_data = [quiz_data]
+        
         # Save to chat history as a special message block
         chats = load_chats()
         if chat_id in chats:
             chats[chat_id]["messages"].append({
                 "role": "ai",
                 "text": f"### Quiz Generated: {filename}",
-                "quiz": quiz_data  # Store the raw quiz data
+                "quiz": quiz_data  # Store the normalized quiz data
             })
             save_chats(chats)
             

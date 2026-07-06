@@ -456,8 +456,8 @@ class RAGPipeline:
         prompt_template = ChatPromptTemplate.from_messages([
             ("system", (
                 "You are an expert educator. Analyze the provided document text and generate a multiple-choice quiz of exactly 10 questions.\n"
-                "The output MUST be a valid JSON array of objects. Do NOT include any markdown formatting (like ```json or ```), introductory text, or explanatory text. Output ONLY the raw JSON.\n\n"
-                "Each object in the JSON array must have the following keys:\n"
+                "The output MUST be a valid JSON object with a single key \"quiz\" containing a list of the 10 questions. Do NOT include any markdown formatting (like ```json or ```), introductory text, or explanatory text. Output ONLY the raw JSON.\n\n"
+                "Each question object in the \"quiz\" array must have exactly the following keys:\n"
                 "1. \"question\": The question text.\n"
                 "2. \"options\": An array of exactly 4 strings representing the multiple-choice options.\n"
                 "3. \"answer\": The correct option (must match one of the strings in the \"options\" array exactly).\n"
@@ -788,11 +788,11 @@ class RAGPipeline:
         # Define prompt template
         prompt_template = ChatPromptTemplate.from_messages([
             ("system", (
-                "You are an expert technical interviewer. Generate exactly 30 interview questions based on the provided text.\n"
+                "You are an expert technical interviewer. Generate exactly 9 interview questions based on the provided text.\n"
                 "The questions must be divided exactly as:\n"
-                "- 10 Basic Questions (simple, foundational concepts)\n"
-                "- 10 Intermediate Questions (application, analysis, practical scenarios)\n"
-                "- 10 Advanced Questions (deep-dive, architecture, trade-offs, edge cases)\n\n"
+                "- 3 Basic Questions (simple, foundational concepts)\n"
+                "- 3 Intermediate Questions (application, analysis, practical scenarios)\n"
+                "- 3 Advanced Questions (deep-dive, architecture, trade-offs, edge cases)\n\n"
                 "For every question, provide:\n"
                 "1. The question text\n"
                 "2. A detailed expected answer\n"
@@ -807,10 +807,10 @@ class RAGPipeline:
                 '      "answer": "expected answer text",\n'
                 '      "difficulty": "Basic",\n'
                 '      "topic": "topic name"\n'
-                "    }},\n"
-                "    ...\n"
-                "  ]\n"
-                "}}\n"
+                '    }},\n'
+                '    ...\n'
+                '  ]\n'
+                '}}\n'
             )),
             ("human", "Document Title: {filename}\nDocument Content:\n{text}")
         ])

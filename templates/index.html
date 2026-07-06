@@ -115,9 +115,16 @@
 
                     <!-- Uploaded Documents Section -->
                     <div class="nav-section">
-                        <div class="nav-section-title">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                            <span>Uploaded Documents</span>
+                        <div class="nav-section-title-wrapper">
+                            <div class="nav-section-title">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                <span>Uploaded Documents</span>
+                            </div>
+                            <div class="file-actions-header">
+                                <button class="btn-compare-docs" id="compare-docs-btn" title="Compare PDFs" {% if not uploaded_files or uploaded_files|length < 2 %}disabled{% endif %}>
+                                    Compare
+                                </button>
+                            </div>
                         </div>
                         <!-- Document List -->
                         <div class="document-list" id="document-list">
@@ -484,7 +491,7 @@
     </div>
 
     <!-- Tool Document Selector Modal -->
-    <div class="modal-overlay" id="tool-doc-modal" style="display: none;">
+    <div class="modal" id="tool-doc-modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Select Document</h3>
@@ -601,6 +608,20 @@
                 if (dbStatusText) dbStatusText.textContent = 'Vector DB: Empty';
                 if (footerDbDot) footerDbDot.className = 'footer-status-dot red';
                 if (footerDbText) footerDbText.textContent = 'Vector DB: Empty';
+            }
+
+            // Initialize active files text in chat header on page load
+            const activeFilesText = document.getElementById('active-files-text');
+            if (activeFilesText) {
+                const initialFiles = [];
+                document.querySelectorAll('.document-item').forEach(item => {
+                    initialFiles.push(item.dataset.filename);
+                });
+                if (initialFiles.length > 0) {
+                    activeFilesText.textContent = initialFiles.join(', ');
+                } else {
+                    activeFilesText.textContent = 'No active documents';
+                }
             }
 
             themeToggleBtn.addEventListener('click', () => {
@@ -843,9 +864,13 @@
             newChatBtn.addEventListener('click', createNewChatSession);
             loadChatSessions();
 
-            // Bind summarize and quiz buttons on initial load
-            document.querySelectorAll('.document-item').forEach(item => {
-                const filename = item.dataset.filename;
+            function bindDocumentItem(item, filename) {
+                // Click on document item itself opens the PDF viewer
+                item.style.cursor = 'pointer';
+                item.addEventListener('click', () => {
+                    openPdfViewer(`/uploads/${encodeURIComponent(filename)}`, 1, `Viewing document: ${filename}`, '', '');
+                });
+
                 const sumBtn = item.querySelector('.btn-summarize-file');
                 if (sumBtn) {
                     sumBtn.addEventListener('click', (e) => {
@@ -860,6 +885,40 @@
                         generateQuiz(filename, quizBtn);
                     });
                 }
+                const notesBtn = item.querySelector('.btn-notes-file');
+                if (notesBtn) {
+                    notesBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        generateNotes(filename, notesBtn);
+                    });
+                }
+                const interviewBtn = item.querySelector('.btn-interview-file');
+                if (interviewBtn) {
+                    interviewBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        generateInterview(filename, interviewBtn);
+                    });
+                }
+                const flashcardsBtn = item.querySelector('.btn-flashcards-file');
+                if (flashcardsBtn) {
+                    flashcardsBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        generateFlashcards(filename, flashcardsBtn);
+                    });
+                }
+                const deleteBtn = item.querySelector('.btn-delete-file');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteSingleFile(filename);
+                    });
+                }
+            }
+
+            // Bind document items on initial load
+            document.querySelectorAll('.document-item').forEach(item => {
+                const filename = item.dataset.filename;
+                bindDocumentItem(item, filename);
             });
 
             // Drag and drop events for multiple files with drag counter to prevent flickering
@@ -1105,41 +1164,8 @@
                             </div>
                         `;
                         
-                        // Bind individual summarize button
-                        item.querySelector('.btn-summarize-file').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            summarizePDF(file, item.querySelector('.btn-summarize-file'));
-                        });
- 
-                        // Bind individual quiz button
-                        item.querySelector('.btn-quiz-file').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            generateQuiz(file, item.querySelector('.btn-quiz-file'));
-                        });
-
-                        // Bind individual notes button
-                        item.querySelector('.btn-notes-file').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            generateNotes(file, item.querySelector('.btn-notes-file'));
-                        });
-
-                        // Bind individual interview button
-                        item.querySelector('.btn-interview-file').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            generateInterview(file, item.querySelector('.btn-interview-file'));
-                        });
-
-                        // Bind individual flashcards button
-                        item.querySelector('.btn-flashcards-file').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            generateFlashcards(file, item.querySelector('.btn-flashcards-file'));
-                        });
-
-                        // Bind individual delete button
-                        item.querySelector('.btn-delete-file').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            deleteSingleFile(file);
-                        });
+                        // Bind all item event listeners
+                        bindDocumentItem(item, file);
                         
                         documentList.appendChild(item);
                     });
@@ -1172,6 +1198,9 @@
                     return;
                 }
 
+                if (window.showChatView) window.showChatView();
+                if (window.setActiveTool) window.setActiveTool('chat');
+
                 // Disable button and add loading class
                 button.disabled = true;
                 button.classList.add('loading');
@@ -1187,14 +1216,7 @@
                 .then(res => res.json())
                 .then(data => {
                     // Remove loading message
-                    if (loadingMsg) {
-                        const allSysMsgs = document.querySelectorAll('.system-message');
-                        allSysMsgs.forEach(msg => {
-                            if (msg.textContent.includes(filename)) {
-                                msg.remove();
-                            }
-                        });
-                    }
+                    if (loadingMsg) loadingMsg.remove();
 
                     if (data.error) {
                         appendSystemMessage(`❌ Error: ${data.error}`);
@@ -1210,12 +1232,7 @@
                     }
                 })
                 .catch(err => {
-                    const allSysMsgs = document.querySelectorAll('.system-message');
-                    allSysMsgs.forEach(msg => {
-                        if (msg.textContent.includes(filename)) {
-                            msg.remove();
-                        }
-                    });
+                    if (loadingMsg) loadingMsg.remove();
                     appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
                 })
                 .finally(() => {
@@ -1230,6 +1247,9 @@
                     return;
                 }
 
+                if (window.showChatView) window.showChatView();
+                if (window.setActiveTool) window.setActiveTool('chat');
+
                 button.disabled = true;
                 button.classList.add('loading');
 
@@ -1242,14 +1262,7 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (loadingMsg) {
-                        const allSysMsgs = document.querySelectorAll('.system-message');
-                        allSysMsgs.forEach(msg => {
-                            if (msg.textContent.includes(filename)) {
-                                msg.remove();
-                            }
-                        });
-                    }
+                    if (loadingMsg) loadingMsg.remove();
 
                     if (data.error) {
                         appendSystemMessage(`❌ Error: ${data.error}`);
@@ -1265,12 +1278,7 @@
                     }
                 })
                 .catch(err => {
-                    const allSysMsgs = document.querySelectorAll('.system-message');
-                    allSysMsgs.forEach(msg => {
-                        if (msg.textContent.includes(filename)) {
-                            msg.remove();
-                        }
-                    });
+                    if (loadingMsg) loadingMsg.remove();
                     appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
                 })
                 .finally(() => {
@@ -1285,6 +1293,9 @@
                     return;
                 }
 
+                if (window.showChatView) window.showChatView();
+                if (window.setActiveTool) window.setActiveTool('chat');
+
                 button.disabled = true;
                 button.classList.add('loading');
 
@@ -1297,14 +1308,7 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (loadingMsg) {
-                        const allSysMsgs = document.querySelectorAll('.system-message');
-                        allSysMsgs.forEach(msg => {
-                            if (msg.textContent.includes(filename)) {
-                                msg.remove();
-                            }
-                        });
-                    }
+                    if (loadingMsg) loadingMsg.remove();
 
                     if (data.error) {
                         appendSystemMessage(`❌ Error: ${data.error}`);
@@ -1320,12 +1324,7 @@
                     }
                 })
                 .catch(err => {
-                    const allSysMsgs = document.querySelectorAll('.system-message');
-                    allSysMsgs.forEach(msg => {
-                        if (msg.textContent.includes(filename)) {
-                            msg.remove();
-                        }
-                    });
+                    if (loadingMsg) loadingMsg.remove();
                     appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
                 })
                 .finally(() => {
@@ -1340,6 +1339,9 @@
                     return;
                 }
 
+                if (window.showChatView) window.showChatView();
+                if (window.setActiveTool) window.setActiveTool('chat');
+
                 button.disabled = true;
                 button.classList.add('loading');
 
@@ -1352,14 +1354,7 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (loadingMsg) {
-                        const allSysMsgs = document.querySelectorAll('.system-message');
-                        allSysMsgs.forEach(msg => {
-                            if (msg.textContent.includes(filename)) {
-                                msg.remove();
-                            }
-                        });
-                    }
+                    if (loadingMsg) loadingMsg.remove();
 
                     if (data.error) {
                         appendSystemMessage(`❌ Error: ${data.error}`);
@@ -1375,12 +1370,7 @@
                     }
                 })
                 .catch(err => {
-                    const allSysMsgs = document.querySelectorAll('.system-message');
-                    allSysMsgs.forEach(msg => {
-                        if (msg.textContent.includes(filename)) {
-                            msg.remove();
-                        }
-                    });
+                    if (loadingMsg) loadingMsg.remove();
                     appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
                 })
                 .finally(() => {
@@ -1391,6 +1381,10 @@
 
             function printNotes(title, notesHtml) {
                 const element = document.createElement('div');
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.top = '0';
+                element.style.width = '790px';
                 element.innerHTML = `
                     <div style="font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #1e293b; line-height: 1.6;">
                         <h1 style="font-size: 24px; border-bottom: 2px solid #10b981; padding-bottom: 10px; color: #0f172a; margin-bottom: 20px;">DocuMind Study Notes: ${title}</h1>
@@ -1427,11 +1421,21 @@
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                html2pdf().set(opt).from(element).save();
+                document.body.appendChild(element);
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.body.removeChild(element);
+                }).catch(err => {
+                    console.error("PDF generation failed:", err);
+                    document.body.removeChild(element);
+                });
             }
 
             function printQuiz(title, quizHtml) {
                 const element = document.createElement('div');
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.top = '0';
+                element.style.width = '790px';
                 element.innerHTML = `
                     <div style="font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #1e293b; line-height: 1.6;">
                         <h1 style="font-size: 24px; border-bottom: 2px solid #6366f1; padding-bottom: 10px; color: #0f172a; margin-bottom: 20px;">DocuMind AI Quiz: ${title}</h1>
@@ -1487,7 +1491,79 @@
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                html2pdf().set(opt).from(element).save();
+                document.body.appendChild(element);
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.body.removeChild(element);
+                }).catch(err => {
+                    console.error("PDF generation failed:", err);
+                    document.body.removeChild(element);
+                });
+            }
+
+            function printInterview(title, interviewHtml) {
+                const element = document.createElement('div');
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.top = '0';
+                element.style.width = '790px';
+                element.innerHTML = `
+                    <div style="font-family: 'Segoe UI', Arial, sans-serif; padding: 30px; color: #1e293b; line-height: 1.6;">
+                        <h1 style="font-size: 24px; border-bottom: 2px solid #6366f1; padding-bottom: 10px; color: #0f172a; margin-bottom: 20px;">DocuMind Interview Prep: ${title}</h1>
+                        <div style="margin-bottom: 30px; color: #64748b; font-size: 12px;">Generated by DocuMind AI PDF Chatbot.</div>
+                        ${interviewHtml}
+                    </div>
+                `;
+
+                // Apply inline styles for PDF generation layout compatibility
+                element.querySelectorAll('.diff-header').forEach(h2 => {
+                    h2.style.fontSize = '18px';
+                    h2.style.color = '#4f46e5';
+                    h2.style.borderBottom = '1px solid #e2e8f0';
+                    h2.style.paddingBottom = '6px';
+                    h2.style.marginTop = '24px';
+                    h2.style.marginBottom = '12px';
+                });
+                element.querySelectorAll('.interview-print-item').forEach(item => {
+                    item.style.marginBottom = '24px';
+                    item.style.borderBottom = '1px dashed #e2e8f0';
+                    item.style.paddingBottom = '16px';
+                    item.style.pageBreakInside = 'avoid';
+                });
+                element.querySelectorAll('.question').forEach(q => {
+                    q.style.fontWeight = '600';
+                    q.style.marginBottom = '8px';
+                    q.style.fontSize = '16px';
+                });
+                element.querySelectorAll('.meta').forEach(m => {
+                    m.style.fontSize = '12px';
+                    m.style.color = '#64748b';
+                    m.style.fontStyle = 'italic';
+                    m.style.marginBottom = '8px';
+                });
+                element.querySelectorAll('.answer').forEach(a => {
+                    a.style.marginTop = '8px';
+                    a.style.fontSize = '14px';
+                    a.style.background = '#f8fafc';
+                    a.style.padding = '10px';
+                    a.style.borderRadius = '6px';
+                    a.style.borderLeft = '4px solid #4f46e5';
+                });
+
+                const opt = {
+                    margin:       [15, 15, 15, 15],
+                    filename:     `Interview_${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                document.body.appendChild(element);
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.body.removeChild(element);
+                }).catch(err => {
+                    console.error("PDF generation failed:", err);
+                    document.body.removeChild(element);
+                });
             }
 
             function generateFlashcards(filename, button) {
@@ -1495,6 +1571,9 @@
                     alert('Please select or create a chat session first.');
                     return;
                 }
+
+                if (window.showChatView) window.showChatView();
+                if (window.setActiveTool) window.setActiveTool('chat');
 
                 button.disabled = true;
                 button.classList.add('loading');
@@ -1508,14 +1587,7 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (loadingMsg) {
-                        const allSysMsgs = document.querySelectorAll('.system-message');
-                        allSysMsgs.forEach(msg => {
-                            if (msg.textContent.includes(filename)) {
-                                msg.remove();
-                            }
-                        });
-                    }
+                    if (loadingMsg) loadingMsg.remove();
 
                     if (data.error) {
                         appendSystemMessage(`❌ Error: ${data.error}`);
@@ -1531,12 +1603,7 @@
                     }
                 })
                 .catch(err => {
-                    const allSysMsgs = document.querySelectorAll('.system-message');
-                    allSysMsgs.forEach(msg => {
-                        if (msg.textContent.includes(filename)) {
-                            msg.remove();
-                        }
-                    });
+                    if (loadingMsg) loadingMsg.remove();
                     appendSystemMessage(`❌ Failed to communicate with the server: ${err.message}`);
                 })
                 .finally(() => {
@@ -1803,6 +1870,8 @@
                     }
 
                     compareModal.style.display = 'none';
+                    if (window.showChatView) window.showChatView();
+                    if (window.setActiveTool) window.setActiveTool('chat');
                     appendChatMessage('user', `Compare "${file1}" and "${file2}"`);
 
                     userInput.disabled = true;
@@ -1858,6 +1927,7 @@
                 msg.innerHTML = `<div class="message-content">${text}</div>`;
                 chatMessages.appendChild(msg);
                 scrollToBottom();
+                return msg;
             }
 
             function renderInterviewList(questions, startIdx) {
@@ -2000,6 +2070,22 @@
                 } else if (comparison) {
                     const doc1Name = text.replace('### Document Comparison: ', '').split(' vs ')[0];
                     const doc2Name = text.replace('### Document Comparison: ', '').split(' vs ')[1];
+                    
+                    let diffs = comparison.differences || '';
+                    if (Array.isArray(diffs)) {
+                        diffs = diffs.map(d => `- ${d}`).join('\n');
+                    }
+                    
+                    let sims = comparison.similarities || '';
+                    if (Array.isArray(sims)) {
+                        sims = sims.map(s => `- ${s}`).join('\n');
+                    }
+                    
+                    let conc = comparison.conclusion || '';
+                    if (Array.isArray(conc)) {
+                        conc = conc.join('\n\n');
+                    }
+
                     comparisonHtml = `
                         <div class="comparison-card">
                             <div class="comparison-card-header">
@@ -2046,15 +2132,15 @@
                             <div class="comparison-details">
                                 <div class="comp-detail-section">
                                     <h4>Differences</h4>
-                                    <p>${DOMPurify.sanitize(marked.parse(comparison.differences || ''))}</p>
+                                    <p>${DOMPurify.sanitize(marked.parse(diffs))}</p>
                                 </div>
                                 <div class="comp-detail-section">
                                     <h4>Similarities</h4>
-                                    <p>${DOMPurify.sanitize(marked.parse(comparison.similarities || ''))}</p>
+                                    <p>${DOMPurify.sanitize(marked.parse(sims))}</p>
                                 </div>
                                 <div class="comp-detail-section conclusion">
                                     <h4>Final Conclusion</h4>
-                                    <p>${DOMPurify.sanitize(marked.parse(comparison.conclusion || ''))}</p>
+                                    <p>${DOMPurify.sanitize(marked.parse(conc))}</p>
                                 </div>
                             </div>
                         </div>
@@ -2092,55 +2178,56 @@
                             </div>
                         </div>
                     `;
-                const quizArray = Array.isArray(quiz) ? quiz : (quiz ? (quiz.quiz || quiz.questions || []) : []);
-                if (quizArray && quizArray.length > 0) {
-                    quizHtml = `
-                        <div class="quiz-card">
-                            <div class="quiz-card-header">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="quiz-card-icon">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                                </svg>
-                                <h3>AI-Generated Quiz: ${escapeHtml(text.replace('### Quiz Generated: ', ''))}</h3>
-                            </div>
-                            <div class="quiz-accordion">
-                                ${quizArray.map((q, idx) => {
-                                    const qQuest = q.question || 'No question text';
-                                    const qDiff = q.difficulty || 'Medium';
-                                    const qOpts = q.options || [];
-                                    const qAns = q.answer || '';
-                                    return `
-                                        <div class="quiz-accordion-item">
-                                            <div class="quiz-accordion-header">
-                                                <span class="quiz-q-num">Q${idx + 1}</span>
-                                                <span class="quiz-q-text">${escapeHtml(qQuest)}</span>
-                                                <span class="quiz-badge ${(qDiff).toLowerCase()}">${escapeHtml(qDiff)}</span>
-                                                <svg class="quiz-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                                            </div>
-                                            <div class="quiz-accordion-body" style="display: none;">
-                                                <ul class="quiz-options">
-                                                    ${qOpts.map(opt => `
-                                                        <li class="quiz-option-item">${escapeHtml(opt)}</li>
-                                                    `).join('')}
-                                                </ul>
-                                                <div class="quiz-answer-section">
-                                                    <span class="quiz-answer-label">Correct Answer:</span>
-                                                    <span class="quiz-answer-value">${escapeHtml(qAns)}</span>
+                } else if (quiz) {
+                    const quizArray = Array.isArray(quiz) ? quiz : (quiz ? (quiz.quiz || quiz.questions || []) : []);
+                    if (quizArray && quizArray.length > 0) {
+                        quizHtml = `
+                            <div class="quiz-card">
+                                <div class="quiz-card-header">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="quiz-card-icon">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                    </svg>
+                                    <h3>AI-Generated Quiz: ${escapeHtml(text.replace('### Quiz Generated: ', ''))}</h3>
+                                </div>
+                                <div class="quiz-accordion">
+                                    ${quizArray.map((q, idx) => {
+                                        const qQuest = q.question || 'No question text';
+                                        const qDiff = q.difficulty || 'Medium';
+                                        const qOpts = q.options || [];
+                                        const qAns = q.answer || '';
+                                        return `
+                                            <div class="quiz-accordion-item">
+                                                <div class="quiz-accordion-header">
+                                                    <span class="quiz-q-num">Q${idx + 1}</span>
+                                                    <span class="quiz-q-text">${escapeHtml(qQuest)}</span>
+                                                    <span class="quiz-badge ${(qDiff).toLowerCase()}">${escapeHtml(qDiff)}</span>
+                                                    <svg class="quiz-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </div>
+                                                <div class="quiz-accordion-body" style="display: none;">
+                                                    <ul class="quiz-options">
+                                                        ${qOpts.map(opt => `
+                                                            <li class="quiz-option-item">${escapeHtml(opt)}</li>
+                                                        `).join('')}
+                                                    </ul>
+                                                    <div class="quiz-answer-section">
+                                                        <span class="quiz-answer-label">Correct Answer:</span>
+                                                        <span class="quiz-answer-value">${escapeHtml(qAns)}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    `;
-                                }).join('')}
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <div class="quiz-card-footer">
+                                    <button class="btn-action btn-download-quiz">
+                                        Download Quiz (PDF)
+                                    </button>
+                                </div>
                             </div>
-                            <div class="quiz-card-footer">
-                                <button class="btn-action btn-download-quiz">
-                                    Download Quiz (PDF)
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
                 } else if (sender === 'ai') {
                     formattedText = DOMPurify.sanitize(marked.parse(text || ''));
                 } else {
@@ -2452,7 +2539,8 @@
                     if (downloadQuizBtn) {
                         downloadQuizBtn.addEventListener('click', () => {
                             let printHtml = '';
-                            quiz.forEach((q, idx) => {
+                            const quizArray = Array.isArray(quiz) ? quiz : (quiz ? (quiz.quiz || quiz.questions || []) : []);
+                            quizArray.forEach((q, idx) => {
                                 printHtml += `
                                     <div class="quiz-item">
                                         <div class="question">Q${idx + 1}. ${escapeHtml(q.question)}</div>
@@ -2502,9 +2590,27 @@
 
             function openPdfViewer(pdfUrl, page, snippet, confidence, chunk) {
                 pdfIframe.src = `${pdfUrl}#page=${page}`;
-                pdfSnippetText.textContent = snippet;
-                pdfSnippetPage.textContent = `Page ${page} (Chunk ${chunk})`;
-                pdfSnippetConfidence.textContent = `${confidence}% Match`;
+                
+                const snippetContainer = document.getElementById('pdf-viewer-snippet-container');
+                if (snippetContainer) {
+                    if (snippet) {
+                        snippetContainer.style.display = 'block';
+                        pdfSnippetText.textContent = snippet;
+                        if (chunk !== undefined && chunk !== '') {
+                            pdfSnippetPage.textContent = `Page ${page} (Chunk ${chunk})`;
+                        } else {
+                            pdfSnippetPage.textContent = `Page ${page}`;
+                        }
+                        if (confidence !== undefined && confidence !== '') {
+                            pdfSnippetConfidence.textContent = `${confidence}% Match`;
+                            pdfSnippetConfidence.style.display = 'inline-block';
+                        } else {
+                            pdfSnippetConfidence.style.display = 'none';
+                        }
+                    } else {
+                        snippetContainer.style.display = 'none';
+                    }
+                }
                 
                 pdfViewerPanel.style.display = 'flex';
                 document.body.classList.add('pdf-viewer-open');
